@@ -1,0 +1,6 @@
+{
+  "name": "CA Inter May 2027 Study Planner & Tracker",
+  "description": "Rigid 5-hour daily study planner, ICAI New Scheme syllabus tracker, morning theory & evening practical block scheduler, and backlog auto-balancer for working professionals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
