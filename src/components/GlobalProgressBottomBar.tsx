@@ -118,6 +118,10 @@ export const GlobalProgressBottomBar: React.FC<GlobalProgressBottomBarProps> = (
 
         {/* Right: Quick Theme Button & Day Counter */}
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
+            <span>🎓 {state.courseLevel === 'foundation' ? 'CA Foundation' : state.courseLevel === 'final' ? 'CA Final' : 'CA Inter'}</span>
+          </div>
+
           <div className="hidden sm:flex items-center gap-1 text-[11px] text-slate-400 font-semibold px-2 py-1 rounded-lg bg-slate-900 border border-slate-800">
             <Calendar className="w-3.5 h-3.5 text-indigo-400" />
             <span>Day 1: <strong>26-Oct-26</strong></span>

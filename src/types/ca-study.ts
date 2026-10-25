@@ -88,7 +88,8 @@ export interface TopicLinkReference {
   priceNote?: string;         // e.g. "Free PDF on ICAI BoS", "Paid Fast-Track Batch", "Paid Practice Scanner"
 }
 
-export type AppTheme = 'midnight' | 'emerald' | 'navy' | 'amber' | 'paper';
+export type AppTheme = 'midnight' | 'emerald' | 'navy' | 'amber' | 'paper' | 'beige';
+export type AppFontFamily = 'playfair' | 'fraunces' | 'jakarta';
 
 export interface AIFlashcard {
   id: string;
@@ -130,19 +131,57 @@ export interface DayPlan {
   summaryTarget: string;
 }
 
+export type UserPersona = 'student' | 'working_professional';
+
+export type CourseLevel = 'foundation' | 'intermediate' | 'final';
+
+export type AttemptPortion = 'both' | 'group1' | 'group2';
+
+export type ExamSession = 'may_2027' | 'nov_2027' | 'jan_2027' | 'sept_2027';
+
+export type CourseFilterType = 'all' | 'free' | 'paid';
+
+export interface CuratedCourse {
+  id: string;
+  title: string;
+  level: CourseLevel;
+  paperCode: string; // e.g. 'P1', 'P2', 'P3', 'P4' or 'G1P1', 'G2P4'
+  paperName: string;
+  facultyOrOrg: string;
+  costType: 'free' | 'paid';
+  priceEstimate?: string; // e.g. "Free (ICAI Official)", "₹3,999", "₹7,500"
+  tag: string; // 'ICAI Official' | 'YouTube Fast-Track' | 'Regular Batch' | 'Exam Scanner' | 'Test Series' | 'Revision Marathon'
+  format: 'Video Classes' | 'PDF & Notes' | 'Test Series' | 'Practice Book' | 'Live Sessions';
+  description: string;
+  features: string[];
+  externalUrl: string;
+  badge?: string;
+  rating?: number;
+}
+
 export interface PlannerState {
   version: number;
+  courseLevel: CourseLevel;
+  userPersona?: UserPersona;      // 'student' (8 hours) | 'working_professional' (5 hours)
+  attemptPortion: AttemptPortion; // 'both' | 'group1' | 'group2'
+  examSession: ExamSession;       // 'may_2027' | 'nov_2027'
   startDate?: string; // e.g. "2026-10-26"
-  examDate: string; // "2027-05-01"
+  examDate: string; // "2027-05-01" or "2027-11-01"
   theme?: AppTheme;
+  fontFamily?: AppFontFamily;
   chapters: Record<string, Chapter>;
   studyLogs: Record<string, StudyLogEntry>;
   dailyPlans: Record<string, DayPlan>; // keyed by date (YYYY-MM-DD)
   backlogConfig: BacklogConfig;
   streakCount: number;
   lastActiveDate: string;
-  morningSlotTime: string; // e.g. "06:30 - 08:00"
-  eveningSlotTime: string; // e.g. "20:00 - 00:00"
+  morningSlotTime: string; // e.g. "06:30 - 08:00 (1.5h)"
+  eveningSlotTime: string; // e.g. "20:00 - 00:00 (3.5h)"
+  morningStartTime?: string; // e.g. "06:30"
+  morningEndTime?: string;   // e.g. "08:00"
+  eveningStartTime?: string; // e.g. "20:00"
+  eveningEndTime?: string;   // e.g. "00:00"
+  eveningBreakMinutes?: number; // e.g. 30
 }
 
 

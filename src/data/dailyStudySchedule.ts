@@ -1,4 +1,4 @@
-import { DayPlan, ScheduledTopic, TopicExecutionFramework, TopicLinkReference } from '../types/ca-study';
+import { DayPlan, ScheduledTopic, TopicExecutionFramework, TopicLinkReference, AttemptPortion } from '../types/ca-study';
 import { generateTopicResources } from '../utils/topicResources';
 
 export const FRAMEWORKS: Record<string, TopicExecutionFramework> = {
@@ -1090,7 +1090,8 @@ export const CURRICULUM_BLOCKS = [
  */
 export function generateFullRoadmapTillMay2027(
   startDateStr: string = '2026-10-26',
-  examDateStr: string = '2027-05-01'
+  examDateStr: string = '2027-05-01',
+  portion: AttemptPortion = 'both'
 ): Record<string, DayPlan> {
   const result: Record<string, DayPlan> = {};
   const start = new Date(startDateStr);
@@ -1099,6 +1100,99 @@ export function generateFullRoadmapTillMay2027(
   // Calculate total days between start and exam
   const diffTime = Math.max(1, exam.getTime() - start.getTime());
   const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Determine active curriculum blocks for the selected attempt portion
+  let blocksToUse: any[] = CURRICULUM_BLOCKS.slice(0, -1);
+  if (portion === 'group1') {
+    // Pure Group 1 (Paper 1: Adv Acc, Paper 2: Law, Paper 3: Taxation)
+    blocksToUse = [
+      CURRICULUM_BLOCKS[0], // Law + Adv Accounts
+      {
+        ...CURRICULUM_BLOCKS[2], // Morning Tax (P3)
+        eveningPaperCode: CURRICULUM_BLOCKS[0].eveningPaperCode, // Evening Adv Accounts (P1)
+        eveningPaperShortName: CURRICULUM_BLOCKS[0].eveningPaperShortName,
+        eveningChapterId: CURRICULUM_BLOCKS[0].eveningChapterId,
+        eveningChapterTitle: CURRICULUM_BLOCKS[0].eveningChapterTitle,
+        eveningSubtopics: CURRICULUM_BLOCKS[0].eveningSubtopics,
+        eveningSmModule: CURRICULUM_BLOCKS[0].eveningSmModule,
+        eveningPageRange: CURRICULUM_BLOCKS[0].eveningPageRange,
+        eveningIllustrations: CURRICULUM_BLOCKS[0].eveningIllustrations,
+        eveningRtpPyq: CURRICULUM_BLOCKS[0].eveningRtpPyq,
+        eveningBareAct: CURRICULUM_BLOCKS[0].eveningBareAct,
+        eveningFramework: CURRICULUM_BLOCKS[0].eveningFramework,
+        eveningMemory: CURRICULUM_BLOCKS[0].eveningMemory,
+        eveningLinks: CURRICULUM_BLOCKS[0].eveningLinks,
+      },
+      CURRICULUM_BLOCKS[3], // Law + Adv Accounts AS 10
+      {
+        ...CURRICULUM_BLOCKS[0], // Morning Law (P2)
+        eveningPaperCode: CURRICULUM_BLOCKS[2].morningPaperCode, // Evening Tax Computations (P3)
+        eveningPaperShortName: CURRICULUM_BLOCKS[2].morningPaperShortName,
+        eveningChapterId: CURRICULUM_BLOCKS[2].morningChapterId,
+        eveningChapterTitle: 'Taxation: Income Tax Slabs & Total Income Computation',
+        eveningSubtopics: [
+          'Sec 115BAC Default Regime vs Sec 115BAC(6) Opt-out to Old Tax Regime',
+          'Sec 87A rebate (Rs 25,000 threshold up to Rs 7,00,000 taxable income)',
+          'Surcharge rates (10%, 15%, 25%) and Marginal Relief computation',
+          'Health and Education Cess @ 4% on Total Tax + Surcharge',
+        ],
+        eveningSmModule: 'ICAI SM Module 1 (Taxation)',
+        eveningPageRange: 'Pages 1.10 - 1.48',
+        eveningIllustrations: 'Illustrations 1-6 on Tax Computation',
+        eveningRtpPyq: 'Nov 2024 RTP Q1 Comprehensive Problem',
+        eveningBareAct: 'Income Tax Act 1961 Sec 4, 87A, 115BAC',
+        eveningFramework: FRAMEWORKS.taxationDual,
+        eveningMemory: 'Default Slabs: 0-3L Nil, 3-6L 5%, 6-9L 10%, 9-12L 15%, 12-15L 20%, >15L 30%',
+        eveningLinks: CURRICULUM_BLOCKS[2].morningLinks,
+      },
+    ];
+  } else if (portion === 'group2') {
+    // Pure Group 2 (Paper 4: Costing, Paper 5: Auditing, Paper 6: FM-SM)
+    blocksToUse = [
+      CURRICULUM_BLOCKS[4], // Audit + Costing
+      CURRICULUM_BLOCKS[5], // Audit + FM
+      {
+        ...CURRICULUM_BLOCKS[5], // Evening FM (P6)
+        morningPaperCode: 'Paper 6',
+        morningPaperShortName: 'FM & SM',
+        morningChapterId: 'p6_ch10',
+        morningChapterTitle: 'SM: Strategic Management & Competitive Strategies',
+        morningSubtopics: [
+          'Michael Porter\'s Five Forces of Competitive Strategy',
+          'Generic Strategies: Cost Leadership, Differentiation, Focus',
+          'Strategic Analysis: TOWS Matrix, BCG Matrix, Ansoff Matrix',
+        ],
+        morningSmModule: 'ICAI SM Module 2',
+        morningPageRange: 'Pages 2.1 - 2.45',
+        morningIllustrations: 'Strategic Scenarios 1 to 4',
+        morningRtpPyq: 'Nov 2024 RTP SM Case Studies',
+        morningBareAct: 'Strategic Management Analytical Models',
+        morningFramework: FRAMEWORKS.theory3Pass,
+        morningMemory: 'Porter Five Forces: Suppliers, Buyers, Substitutes, New Entrants, Competitors',
+        morningLinks: CURRICULUM_BLOCKS[5].morningLinks,
+      },
+      {
+        ...CURRICULUM_BLOCKS[4], // Morning Audit (P5)
+        eveningPaperCode: 'Paper 4',
+        eveningPaperShortName: 'Costing',
+        eveningChapterId: 'p4_ch2',
+        eveningChapterTitle: 'Costing: Standard Costing & Variance Analysis',
+        eveningSubtopics: [
+          'Material Cost, Price, and Usage Variances',
+          'Labor Cost, Rate, and Efficiency Variances',
+          'Fixed & Variable Overhead Variances',
+        ],
+        eveningSmModule: 'ICAI SM Module 1',
+        eveningPageRange: 'Pages 12.1 - 12.60',
+        eveningIllustrations: 'Variance Comprehensive Problems 1 to 8',
+        eveningRtpPyq: 'May 2024 Exam Standard Costing Question',
+        eveningBareAct: 'CAS 1 to 4 Standards',
+        eveningFramework: FRAMEWORKS.practical4Step,
+        eveningMemory: 'Material Cost Variance = (SQ x SP) - (AQ x AP)',
+        eveningLinks: CURRICULUM_BLOCKS[4].eveningLinks,
+      },
+    ];
+  }
 
   for (let i = 0; i < totalDays; i++) {
     const curDate = new Date(start);
@@ -1109,11 +1203,6 @@ export function generateFullRoadmapTillMay2027(
     const weekNumber = Math.floor(i / 7) + 1;
     const isSunday = curDate.getDay() === 0;
 
-    // Phase determination
-    // Phase 1: Days 1 to 101 (Oct 22 to Jan 31) - Foundation & 100% ICAI SM Coverage
-    // Phase 2: Days 102 to 154 (Feb 1 to Mar 25) - Revision 1 + RTPs & Past 5 Years PYQs
-    // Phase 3: Days 155 to 185 (Mar 26 to Apr 25) - Revision 2 + ICAI MTPs under 2-5 PM Simulation
-    // Phase 4: Days 186 to end (Apr 26 to May 1) - 1.5-Day Exam Marathon Simulation
     let phase: DayPlan['phase'] = 'Phase 1: Foundation & ICAI SM';
     if (i >= 185) {
       phase = 'Phase 4: Exam Marathon';
@@ -1124,9 +1213,9 @@ export function generateFullRoadmapTillMay2027(
     }
 
     // Pick block template based on day sequence and whether it is a Sunday spaced repetition day
-    let template = CURRICULUM_BLOCKS[i % (CURRICULUM_BLOCKS.length - 1)];
+    let template = blocksToUse[i % blocksToUse.length];
     if (isSunday) {
-      // Use block 7 (Sunday Spaced Repetition Buffer)
+      // Use Sunday Spaced Repetition Buffer
       template = CURRICULUM_BLOCKS[CURRICULUM_BLOCKS.length - 1];
     }
 
@@ -1215,6 +1304,10 @@ export function generateFullRoadmapTillMay2027(
   return result;
 }
 
-export function generateInitialDailySchedule(startDateStr?: string): Record<string, DayPlan> {
-  return generateFullRoadmapTillMay2027(startDateStr || '2026-10-26', '2027-05-01');
+export function generateInitialDailySchedule(
+  startDateStr: string = '2026-10-26',
+  examDateStr: string = '2027-05-01',
+  portion: AttemptPortion = 'both'
+): Record<string, DayPlan> {
+  return generateFullRoadmapTillMay2027(startDateStr, examDateStr, portion);
 }

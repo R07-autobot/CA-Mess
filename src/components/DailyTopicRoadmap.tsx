@@ -38,6 +38,7 @@ import { playChime } from '../utils/audio';
 
 interface DailyTopicRoadmapProps {
   state: PlannerState;
+  globalCourseFilter?: 'all' | 'free' | 'paid';
   onUpdateTopicSpentMinutes: (date: string, slot: 'morning' | 'evening', spentMinutes: number) => void;
   onToggleTopicCompleted: (date: string, slot: 'morning' | 'evening', isCompleted: boolean) => void;
   onToggleSubtopic?: (date: string, slot: 'morning' | 'evening', subtopicTitle: string) => void;
@@ -61,6 +62,7 @@ const MONTHS_NAV = [
 
 export const DailyTopicRoadmap: React.FC<DailyTopicRoadmapProps> = ({
   state,
+  globalCourseFilter,
   onUpdateTopicSpentMinutes,
   onToggleTopicCompleted,
   onToggleSubtopic,
@@ -72,9 +74,15 @@ export const DailyTopicRoadmap: React.FC<DailyTopicRoadmapProps> = ({
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedPhase, setSelectedPhase] = useState<string>('all');
   const [selectedPaper, setSelectedPaper] = useState<string>('all');
-  const [resourceTierFilter, setResourceTierFilter] = useState<'all' | 'free' | 'paid'>('all');
+  const [resourceTierFilter, setResourceTierFilter] = useState<'all' | 'free' | 'paid'>(globalCourseFilter || 'all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'in_progress' | 'upcoming'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  React.useEffect(() => {
+    if (globalCourseFilter) {
+      setResourceTierFilter(globalCourseFilter);
+    }
+  }, [globalCourseFilter]);
   const [activeLinkModal, setActiveLinkModal] = useState<{
     date: string;
     slot: 'morning' | 'evening';
@@ -349,14 +357,27 @@ export const DailyTopicRoadmap: React.FC<DailyTopicRoadmapProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-bold text-white">
-                  Full Daily Practical Work Plan (Till May 1, 2027)
+                  Full Daily Practical Work Plan ({state.examSession === 'nov_2027' ? 'Nov 2027' : 'May 2027'})
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                  state.attemptPortion === 'group1'
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                    : state.attemptPortion === 'group2'
+                    ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
+                    : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                }`}>
+                  {state.attemptPortion === 'group1'
+                    ? (state.courseLevel === 'foundation' ? 'Module 1 Only' : 'Group 1 Only')
+                    : state.attemptPortion === 'group2'
+                    ? (state.courseLevel === 'foundation' ? 'Module 2 Only' : 'Group 2 Only')
+                    : (state.courseLevel === 'foundation' ? 'Both Modules (4 Papers)' : 'Both Groups (6 Papers)')}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                   {dayPlansList.length} Days Mapped
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
-                Structured for <strong>realistic human memory retention</strong> with <strong>24h recall</strong>, <strong>Sunday Spaced Repetition Buffers</strong>, clickable YouTube/ICAI SM links, and 5-hour daily execution.
+                Structured for <strong>realistic human memory retention</strong> with <strong>24h recall</strong>, <strong>Sunday Spaced Repetition Buffers</strong>, clickable YouTube/ICAI SM links, and 5-hour daily execution. All topics cycle exclusively through your selected attempt portion.
               </p>
             </div>
           </div>
@@ -470,13 +491,35 @@ export const DailyTopicRoadmap: React.FC<DailyTopicRoadmapProps> = ({
               onChange={(e) => setSelectedPaper(e.target.value)}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none"
             >
-              <option value="all">All 6 Papers</option>
-              <option value="Adv Accounts">Paper 1: Advanced Accounting</option>
-              <option value="Law">Paper 2: Corporate & Other Laws</option>
-              <option value="Taxation">Paper 3: Taxation (DT & GST)</option>
-              <option value="Costing">Paper 4: Cost & Management Acc</option>
-              <option value="Audit">Paper 5: Auditing & Ethics</option>
-              <option value="FM">Paper 6: FM & SM</option>
+              <option value="all">
+                {state.courseLevel === 'foundation' ? 'All 4 Papers' : 'All 6 Papers'}
+              </option>
+              {state.courseLevel === 'foundation' ? (
+                <>
+                  <option value="Accounting">Paper 1: Accounting</option>
+                  <option value="Law">Paper 2: Business Laws</option>
+                  <option value="QA">Paper 3: Quantitative Aptitude</option>
+                  <option value="Economics">Paper 4: Business Economics</option>
+                </>
+              ) : state.courseLevel === 'final' ? (
+                <>
+                  <option value="FR">Paper 1: Financial Reporting</option>
+                  <option value="AFM">Paper 2: Adv Financial Mgmt</option>
+                  <option value="Audit">Paper 3: Adv Auditing & Ethics</option>
+                  <option value="Direct Tax">Paper 4: Direct Tax & Int Tax</option>
+                  <option value="IDT">Paper 5: Indirect Tax (GST)</option>
+                  <option value="IBS">Paper 6: Integrated Business</option>
+                </>
+              ) : (
+                <>
+                  <option value="Adv Accounts">Paper 1: Advanced Accounting</option>
+                  <option value="Law">Paper 2: Corporate & Other Laws</option>
+                  <option value="Taxation">Paper 3: Taxation (DT & GST)</option>
+                  <option value="Costing">Paper 4: Cost & Management Acc</option>
+                  <option value="Audit">Paper 5: Auditing & Ethics</option>
+                  <option value="FM">Paper 6: FM & SM</option>
+                </>
+              )}
             </select>
           </div>
 

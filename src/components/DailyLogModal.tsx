@@ -21,6 +21,9 @@ interface DailyLogModalProps {
   chapters: Record<string, Chapter>;
   onSaveLog: (log: StudyLogEntry) => void;
   onTriggerBacklog: () => void;
+  dailyTargetHours?: number;
+  morningSlotHours?: number;
+  eveningSlotHours?: number;
 }
 
 export const DailyLogModal: React.FC<DailyLogModalProps> = ({
@@ -31,9 +34,12 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
   chapters,
   onSaveLog,
   onTriggerBacklog,
+  dailyTargetHours = 5.0,
+  morningSlotHours = 1.5,
+  eveningSlotHours = 3.5,
 }) => {
-  const [morningHours, setMorningHours] = useState<number>(existingLog?.morningHours ?? 1.5);
-  const [eveningHours, setEveningHours] = useState<number>(existingLog?.eveningHours ?? 3.5);
+  const [morningHours, setMorningHours] = useState<number>(existingLog?.morningHours ?? morningSlotHours);
+  const [eveningHours, setEveningHours] = useState<number>(existingLog?.eveningHours ?? eveningSlotHours);
   const [morningChapterId, setMorningChapterId] = useState<string>(
     existingLog?.morningChapterId || 'p2_ch6'
   );
@@ -42,13 +48,13 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
   );
   const [morningNotes, setMorningNotes] = useState<string>(existingLog?.morningNotes || '');
   const [eveningNotes, setEveningNotes] = useState<string>(existingLog?.eveningNotes || '');
-  const [pomodoros, setPomodoros] = useState<number>(existingLog?.completedPomodoros ?? 5);
+  const [pomodoros, setPomodoros] = useState<number>(existingLog?.completedPomodoros ?? (dailyTargetHours >= 8 ? 8 : 5));
 
   if (!isOpen) return null;
 
   const total = Number((morningHours + eveningHours).toFixed(2));
-  const deficit = Math.max(0, 5.0 - total);
-  const isGoalMet = total >= 5.0;
+  const deficit = Math.max(0, dailyTargetHours - total);
+  const isGoalMet = total >= dailyTargetHours;
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +68,7 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
       morningNotes,
       eveningNotes,
       completedPomodoros: pomodoros,
-      status: total >= 5.0 ? 'met_goal' : total >= 2.5 ? 'partial' : 'missed',
+      status: total >= dailyTargetHours ? 'met_goal' : total >= dailyTargetHours * 0.5 ? 'partial' : 'missed',
     };
 
     onSaveLog(entry);
@@ -145,14 +151,14 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
             </div>
           </div>
 
-          {/* Morning Slot: 1.5h Theory / Law */}
+          {/* Morning Slot Block */}
           <div className="bg-slate-950/60 p-4 rounded-xl border border-amber-500/20">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm">
                 <Sun className="w-4 h-4" />
-                <span>Morning Slot (Theory / Law Focus • 06:30 - 08:00)</span>
+                <span>Morning Focus Slot</span>
               </div>
-              <span className="text-xs text-slate-400 font-mono">Target: 1.5h</span>
+              <span className="text-xs text-slate-400 font-mono">Target: {morningSlotHours}h</span>
             </div>
 
             <div className="space-y-3">
@@ -162,7 +168,7 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
                   <input
                     type="range"
                     min="0"
-                    max="3.0"
+                    max={Math.max(morningSlotHours + 1.5, 4.0)}
                     step="0.25"
                     value={morningHours}
                     onChange={(e) => setMorningHours(parseFloat(e.target.value))}
@@ -173,20 +179,23 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-1.5 mt-2">
-                  {[0, 0.75, 1.25, 1.5].map((val) => (
-                    <button
-                      type="button"
-                      key={val}
-                      onClick={() => setMorningHours(val)}
-                      className={`text-[10px] px-2 py-0.5 rounded cursor-pointer ${
-                        morningHours === val
-                          ? 'bg-amber-500 text-slate-950 font-bold'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                      }`}
-                    >
-                      {val === 1.5 ? '1.5h (Target)' : `${val}h`}
-                    </button>
-                  ))}
+                  {[0, morningSlotHours * 0.5, morningSlotHours * 0.75, morningSlotHours].map((val) => {
+                    const rounded = Number(val.toFixed(2));
+                    return (
+                      <button
+                        type="button"
+                        key={rounded}
+                        onClick={() => setMorningHours(rounded)}
+                        className={`text-[10px] px-2 py-0.5 rounded cursor-pointer ${
+                          morningHours === rounded
+                            ? 'bg-amber-500 text-slate-950 font-bold'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {rounded === morningSlotHours ? `${rounded}h (Target)` : `${rounded}h`}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -231,9 +240,9 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
                 <Moon className="w-4 h-4" />
-                <span>Evening Slot (Practical / Numerical • 20:00 - 00:00)</span>
+                <span>Evening Focus Slot</span>
               </div>
-              <span className="text-xs text-slate-400 font-mono">Target: 3.5h</span>
+              <span className="text-xs text-slate-400 font-mono">Target: {eveningSlotHours}h</span>
             </div>
 
             <div className="space-y-3">
@@ -243,7 +252,7 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
                   <input
                     type="range"
                     min="0"
-                    max="4.5"
+                    max={Math.max(eveningSlotHours + 2.0, 5.0)}
                     step="0.25"
                     value={eveningHours}
                     onChange={(e) => setEveningHours(parseFloat(e.target.value))}
@@ -254,20 +263,23 @@ export const DailyLogModal: React.FC<DailyLogModalProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-1.5 mt-2">
-                  {[0, 1.5, 2.5, 3.5].map((val) => (
-                    <button
-                      type="button"
-                      key={val}
-                      onClick={() => setEveningHours(val)}
-                      className={`text-[10px] px-2 py-0.5 rounded cursor-pointer ${
-                        eveningHours === val
-                          ? 'bg-blue-500 text-slate-950 font-bold'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                      }`}
-                    >
-                      {val === 3.5 ? '3.5h (Target)' : `${val}h`}
-                    </button>
-                  ))}
+                  {[0, eveningSlotHours * 0.5, eveningSlotHours * 0.75, eveningSlotHours].map((val) => {
+                    const rounded = Number(val.toFixed(2));
+                    return (
+                      <button
+                        type="button"
+                        key={rounded}
+                        onClick={() => setEveningHours(rounded)}
+                        className={`text-[10px] px-2 py-0.5 rounded cursor-pointer ${
+                          eveningHours === rounded
+                            ? 'bg-blue-500 text-slate-950 font-bold'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {rounded === eveningSlotHours ? `${rounded}h (Target)` : `${rounded}h`}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

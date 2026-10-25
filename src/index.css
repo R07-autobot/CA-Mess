@@ -1,1 +1,816 @@
 @import "tailwindcss";
+
+/* =========================================================
+   TYPOGRAPHY FAMILIES
+   ========================================================= */
+.font-playfair,
+[data-font="playfair"] h1,
+[data-font="playfair"] h2,
+[data-font="playfair"] h3,
+[data-font="playfair"] .font-editorial {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-fraunces,
+[data-font="fraunces"] h1,
+[data-font="fraunces"] h2,
+[data-font="fraunces"] h3,
+[data-font="fraunces"] .font-editorial {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-jakarta,
+[data-font="jakarta"] h1,
+[data-font="jakarta"] h2,
+[data-font="jakarta"] h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* =========================================================
+   EDITORIAL BEIGE & PITCH BLACK THEME
+   Warm, unbleached parchment/ivory palette with sharp inky black contrast
+   Rule: Dropdowns & Selection Buttons MUST have:
+   - Dark Font and Light Background (Unselected / Inputs / Triggers)
+   OR
+   - Light Font and Dark Background (Selected / Active / Primary)
+   ========================================================= */
+.theme-beige {
+  background-color: #F8F5EE !important;
+  color: #121212 !important;
+}
+
+.theme-beige header {
+  background: linear-gradient(to bottom, #F3ECE0 0%, #F8F5EE 100%) !important;
+  border-bottom: 1px solid #E2DDD0 !important;
+}
+
+/* Card surfaces */
+.theme-beige .bg-slate-900,
+.theme-beige .bg-slate-950,
+.theme-beige .bg-slate-950\/95,
+.theme-beige .bg-slate-900\/90,
+.theme-beige .bg-slate-900\/80 {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige .bg-slate-950\/70,
+.theme-beige .bg-slate-950\/60,
+.theme-beige .bg-slate-950\/50,
+.theme-beige .bg-slate-900\/70,
+.theme-beige .bg-slate-900\/60,
+.theme-beige .bg-slate-900\/50,
+.theme-beige .bg-slate-900\/40,
+.theme-beige .bg-slate-900\/30 {
+  background-color: #F2EDE2 !important;
+  color: #1A1A1A !important;
+  border-color: #DFD8CB !important;
+}
+
+/* Darker secondary badges/containers */
+.theme-beige .bg-slate-800,
+.theme-beige .bg-slate-800\/80,
+.theme-beige .bg-slate-800\/60,
+.theme-beige .bg-slate-800\/50,
+.theme-beige .bg-slate-800\/40 {
+  background-color: #EBE5D8 !important;
+  color: #18181B !important;
+  border-color: #DCD5C6 !important;
+}
+
+.theme-beige .bg-slate-800:hover,
+.theme-beige .hover\:bg-slate-800:hover,
+.theme-beige .hover\:bg-slate-700:hover {
+  background-color: #E0D9CB !important;
+  color: #000000 !important;
+}
+
+/* Borders */
+.theme-beige .border-slate-800,
+.theme-beige .border-slate-800\/80,
+.theme-beige .border-slate-800\/60,
+.theme-beige .border-slate-700,
+.theme-beige .border-slate-700\/80,
+.theme-beige .border-slate-700\/60,
+.theme-beige .border-slate-700\/50,
+.theme-beige .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #E2DDD0 !important;
+}
+
+/* Typography ink contrast */
+.theme-beige .text-white,
+.theme-beige .text-slate-100 {
+  color: #121212 !important;
+}
+
+.theme-beige .text-slate-200,
+.theme-beige .text-slate-300 {
+  color: #27272A !important;
+}
+
+.theme-beige .text-slate-400 {
+  color: #57534E !important;
+}
+
+.theme-beige .text-slate-500 {
+  color: #78716C !important;
+}
+
+.theme-beige .text-slate-600 {
+  color: #A8A29E !important;
+}
+
+/* =========================================================
+   DROPDOWNS & SELECTION BUTTONS IN EDITORIAL BEIGE
+   ========================================================= */
+
+/* =========================================================
+   FOCUS MODE: SELECTED DASHBOARD PORTIONS (LIGHT BACKGROUND & DARK FONT)
+   ========================================================= */
+
+/* 1. Top Completion Status Bar (Selector 1) */
+.theme-beige header > div:nth-of-type(2),
+.theme-beige [data-focus-section="completion-status"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 4px 16px rgba(18, 18, 18, 0.06) !important;
+}
+
+.theme-beige header > div:nth-of-type(2) *,
+.theme-beige [data-focus-section="completion-status"] * {
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige header > div:nth-of-type(2) .text-white,
+.theme-beige header > div:nth-of-type(2) .text-slate-300,
+.theme-beige header > div:nth-of-type(2) .text-emerald-400,
+.theme-beige header > div:nth-of-type(2) .text-amber-400,
+.theme-beige [data-focus-section="completion-status"] .text-white,
+.theme-beige [data-focus-section="completion-status"] .text-slate-300,
+.theme-beige [data-focus-section="completion-status"] .text-emerald-400,
+.theme-beige [data-focus-section="completion-status"] .text-amber-400 {
+  color: #121212 !important;
+  font-weight: 800 !important;
+}
+
+.theme-beige header > div:nth-of-type(2) .text-slate-400,
+.theme-beige [data-focus-section="completion-status"] .text-slate-400 {
+  color: #57534E !important;
+}
+
+.theme-beige header > div:nth-of-type(2) .bg-emerald-500\/20,
+.theme-beige [data-focus-section="completion-status"] .bg-emerald-500\/20 {
+  background-color: #F4EFE6 !important;
+  color: #121212 !important;
+  border: 1px solid #D6CEBF !important;
+}
+
+.theme-beige header > div:nth-of-type(2) .bg-slate-900,
+.theme-beige [data-focus-section="completion-status"] .bg-slate-900 {
+  background-color: #EBE4D5 !important;
+  border-color: #D6CEBF !important;
+}
+
+.theme-beige header > div:nth-of-type(2) .bg-indigo-500\/10,
+.theme-beige [data-focus-section="completion-status"] .bg-indigo-500\/10 {
+  background-color: #FAF8F3 !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+}
+
+/* 2. Target May 1, 2027 Countdown Box (Selector 2) */
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1),
+.theme-beige [data-focus-section="countdown-box"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 4px 16px rgba(18, 18, 18, 0.06) !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) *,
+.theme-beige [data-focus-section="countdown-box"] * {
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-indigo-300,
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-indigo-400,
+.theme-beige [data-focus-section="countdown-box"] .text-indigo-300,
+.theme-beige [data-focus-section="countdown-box"] .text-indigo-400 {
+  color: #121212 !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .bg-indigo-500\/20,
+.theme-beige [data-focus-section="countdown-box"] .bg-indigo-500\/20 {
+  background-color: #F4EFE6 !important;
+  color: #121212 !important;
+  border: 1px solid #D6CEBF !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .bg-slate-900\/80,
+.theme-beige [data-focus-section="countdown-box"] .bg-slate-900\/80 {
+  background-color: #FAF7F2 !important;
+  border: 1px solid #D6CEBF !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .font-black,
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-white,
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-slate-200,
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-amber-400,
+.theme-beige [data-focus-section="countdown-box"] .font-black,
+.theme-beige [data-focus-section="countdown-box"] .text-white,
+.theme-beige [data-focus-section="countdown-box"] .text-slate-200,
+.theme-beige [data-focus-section="countdown-box"] .text-amber-400 {
+  color: #121212 !important;
+  font-weight: 900 !important;
+}
+
+.theme-beige header > div:nth-of-type(3) > div:nth-of-type(1) .text-slate-400,
+.theme-beige [data-focus-section="countdown-box"] .text-slate-400 {
+  color: #57534E !important;
+  font-weight: 700 !important;
+}
+
+/* 3. Today's 5-Hour Study Mission (Selector 3) */
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1),
+.theme-beige [data-focus-section="today-mission"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 6px 20px rgba(18, 18, 18, 0.06) !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) *,
+.theme-beige [data-focus-section="today-mission"] * {
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) h2,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) h3,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) h4,
+.theme-beige [data-focus-section="today-mission"] h2,
+.theme-beige [data-focus-section="today-mission"] h3,
+.theme-beige [data-focus-section="today-mission"] h4 {
+  color: #121212 !important;
+  font-weight: 800 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-white,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-slate-100,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-slate-200,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-slate-300,
+.theme-beige [data-focus-section="today-mission"] .text-white,
+.theme-beige [data-focus-section="today-mission"] .text-slate-100,
+.theme-beige [data-focus-section="today-mission"] .text-slate-200,
+.theme-beige [data-focus-section="today-mission"] .text-slate-300 {
+  color: #121212 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-slate-400,
+.theme-beige [data-focus-section="today-mission"] .text-slate-400 {
+  color: #57534E !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-amber-300,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-amber-400,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-indigo-300,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-indigo-400,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-blue-300,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-blue-400,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-emerald-300,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .text-emerald-400,
+.theme-beige [data-focus-section="today-mission"] .text-amber-300,
+.theme-beige [data-focus-section="today-mission"] .text-amber-400,
+.theme-beige [data-focus-section="today-mission"] .text-indigo-300,
+.theme-beige [data-focus-section="today-mission"] .text-indigo-400,
+.theme-beige [data-focus-section="today-mission"] .text-blue-300,
+.theme-beige [data-focus-section="today-mission"] .text-blue-400,
+.theme-beige [data-focus-section="today-mission"] .text-emerald-300,
+.theme-beige [data-focus-section="today-mission"] .text-emerald-400 {
+  color: #121212 !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-slate-950,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-slate-950\/80,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-slate-900,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-slate-900\/90,
+.theme-beige [data-focus-section="today-mission"] .bg-slate-950,
+.theme-beige [data-focus-section="today-mission"] .bg-slate-950\/80,
+.theme-beige [data-focus-section="today-mission"] .bg-slate-900,
+.theme-beige [data-focus-section="today-mission"] .bg-slate-900\/90 {
+  background-color: #FAF7F2 !important;
+  color: #121212 !important;
+  border: 1px solid #D6CEBF !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-indigo-500\/10,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-amber-500\/10,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(1) .bg-emerald-500\/10,
+.theme-beige [data-focus-section="today-mission"] .bg-indigo-500\/10,
+.theme-beige [data-focus-section="today-mission"] .bg-amber-500\/10,
+.theme-beige [data-focus-section="today-mission"] .bg-emerald-500\/10 {
+  background-color: #FAF8F3 !important;
+  color: #121212 !important;
+  border: 1px solid #121212 !important;
+}
+
+/* 4. Deep Work Session Callout Banner (Selector 4) */
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2),
+.theme-beige [data-focus-section="deep-work-banner"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 4px 16px rgba(18, 18, 18, 0.06) !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) *,
+.theme-beige [data-focus-section="deep-work-banner"] * {
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) h3,
+.theme-beige [data-focus-section="deep-work-banner"] h3 {
+  color: #121212 !important;
+  font-weight: 800 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) p,
+.theme-beige [data-focus-section="deep-work-banner"] p {
+  color: #27272A !important;
+  font-weight: 500 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) .bg-rose-500\/10,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) .bg-indigo-500\/10,
+.theme-beige [data-focus-section="deep-work-banner"] .bg-rose-500\/10,
+.theme-beige [data-focus-section="deep-work-banner"] .bg-indigo-500\/10 {
+  background-color: #FAF8F3 !important;
+  color: #121212 !important;
+  border: 1px solid #121212 !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) .bg-indigo-500\/10 svg,
+.theme-beige [data-focus-section="deep-work-banner"] .bg-indigo-500\/10 svg {
+  color: #121212 !important;
+}
+
+/* 5. Built-in Pomodoro Focus Station (Selector 5) */
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1),
+.theme-beige [data-focus-section="pomodoro-timer"] {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 6px 20px rgba(18, 18, 18, 0.06) !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) *,
+.theme-beige [data-focus-section="pomodoro-timer"] * {
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) h3,
+.theme-beige [data-focus-section="pomodoro-timer"] h3 {
+  color: #121212 !important;
+  font-weight: 800 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-white,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-slate-100,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-slate-200,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-slate-300,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-white,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-slate-100,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-slate-200,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-slate-300 {
+  color: #121212 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-slate-400,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-slate-400 {
+  color: #57534E !important;
+}
+
+/* Big Timer Digital Display in Beige Theme: Pure Pitch-Black Font */
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .font-mono.text-5xl,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .font-mono.text-6xl,
+.theme-beige [data-focus-section="pomodoro-timer"] .font-mono.text-5xl,
+.theme-beige [data-focus-section="pomodoro-timer"] .font-mono.text-6xl {
+  color: #121212 !important;
+  font-weight: 900 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-indigo-400,
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .text-emerald-400,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-indigo-400,
+.theme-beige [data-focus-section="pomodoro-timer"] .text-emerald-400 {
+  color: #121212 !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige main > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) .bg-slate-800,
+.theme-beige [data-focus-section="pomodoro-timer"] .bg-slate-800 {
+  background-color: #FAF8F3 !important;
+  color: #121212 !important;
+  border: 1px solid #D6CEBF !important;
+}
+
+/* 1. Native Select Dropdowns & Options: Dark Font & Light Background */
+.theme-beige select {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  font-weight: 600 !important;
+}
+
+.theme-beige select:focus {
+  border-color: #000000 !important;
+  outline: 2px solid rgba(18, 18, 18, 0.25) !important;
+}
+
+.theme-beige select option,
+.theme-beige select optgroup {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  font-weight: 500 !important;
+}
+
+/* Form inputs & text fields */
+.theme-beige input,
+.theme-beige textarea {
+  background-color: #FAF8F3 !important;
+  color: #121212 !important;
+  border: 1.5px solid #D6CEBF !important;
+}
+
+.theme-beige input:focus,
+.theme-beige textarea:focus {
+  border-color: #121212 !important;
+  outline: 2px solid rgba(18, 18, 18, 0.15) !important;
+}
+
+.theme-beige input::placeholder,
+.theme-beige textarea::placeholder {
+  color: #8C8275 !important;
+}
+
+/* 2. Dropdown Trigger Buttons: Dark Font & Light Background */
+.theme-beige [data-dropdown-trigger],
+.theme-beige [aria-haspopup="true"],
+.theme-beige header button[title*="Attempt"],
+.theme-beige header button[title*="Courses"],
+.theme-beige header button[title*="Switch curriculum"],
+.theme-beige header button[title*="Target Attempt"],
+.theme-beige header button[title*="Filter and browse"] {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border: 1.5px solid #121212 !important;
+  box-shadow: 0 1px 3px rgba(18, 18, 18, 0.08) !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige [data-dropdown-trigger] svg,
+.theme-beige [aria-haspopup="true"] svg,
+.theme-beige header button[title*="Attempt"] svg,
+.theme-beige header button[title*="Courses"] svg,
+.theme-beige header button[title*="Switch curriculum"] svg,
+.theme-beige header button[title*="Target Attempt"] svg,
+.theme-beige header button[title*="Filter and browse"] svg {
+  color: #121212 !important;
+}
+
+.theme-beige [data-dropdown-trigger]:hover,
+.theme-beige [aria-haspopup="true"]:hover,
+.theme-beige header button[title*="Attempt"]:hover,
+.theme-beige header button[title*="Courses"]:hover,
+.theme-beige header button[title*="Switch curriculum"]:hover,
+.theme-beige header button[title*="Target Attempt"]:hover,
+.theme-beige header button[title*="Filter and browse"]:hover {
+  background-color: #F0EAE0 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+/* 3. Dropdown Menu Popovers: Crisp White Background & Pitch Black Border */
+.theme-beige [data-dropdown-menu],
+.theme-beige [role="menu"],
+.theme-beige .relative > .absolute.z-50 {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border: 2px solid #121212 !important;
+  box-shadow: 0 16px 36px rgba(18, 18, 18, 0.18) !important;
+}
+
+.theme-beige [data-dropdown-menu] p,
+.theme-beige [role="menu"] p,
+.theme-beige .relative > .absolute.z-50 p {
+  color: #57534E !important;
+}
+
+.theme-beige [data-dropdown-menu] .text-slate-400,
+.theme-beige [role="menu"] .text-slate-400,
+.theme-beige .relative > .absolute.z-50 .text-slate-400 {
+  color: #78716C !important;
+}
+
+/* 4. Dropdown Options: High Contrast Duality */
+/* Default / Unselected Option: Dark Font on Light Background */
+.theme-beige [data-dropdown-item]:not([data-selected="true"]):not(.is-selected),
+.theme-beige [data-dropdown-session]:not([data-selected="true"]):not(.is-selected),
+.theme-beige [data-dropdown-menu] button:not([data-selected="true"]):not(.is-selected):not(.bg-amber-500\/20):not(.bg-emerald-500\/20):not(.bg-blue-500\/20):not(.bg-indigo-600\/30):not(.bg-amber-600\/30):not(.bg-emerald-600\/30),
+.theme-beige [role="menu"] button:not([data-selected="true"]):not(.is-selected):not(.bg-amber-500\/20):not(.bg-emerald-500\/20):not(.bg-blue-500\/20):not(.bg-indigo-600\/30):not(.bg-amber-600\/30):not(.bg-emerald-600\/30),
+.theme-beige .relative > .absolute.z-50 button:not([data-selected="true"]):not(.is-selected):not(.bg-amber-500\/20):not(.bg-emerald-500\/20):not(.bg-blue-500\/20):not(.bg-indigo-600\/30):not(.bg-amber-600\/30):not(.bg-emerald-600\/30) {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border-color: #E2DDD0 !important;
+}
+
+.theme-beige [data-dropdown-item]:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige [data-dropdown-session]:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige [data-dropdown-menu] button:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige [role="menu"] button:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige .relative > .absolute.z-50 button:not([data-selected="true"]):not(.is-selected) * {
+  color: #121212 !important;
+}
+
+.theme-beige [data-dropdown-item]:not([data-selected="true"]):not(.is-selected) .text-slate-400,
+.theme-beige [data-dropdown-menu] button:not([data-selected="true"]):not(.is-selected) .text-slate-400 {
+  color: #78716C !important;
+}
+
+.theme-beige [data-dropdown-item]:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige [data-dropdown-session]:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige [data-dropdown-menu] button:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige [role="menu"] button:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige .relative > .absolute.z-50 button:not([data-selected="true"]):not(.is-selected):hover {
+  background-color: #F2EDE2 !important;
+  color: #000000 !important;
+  border-color: #121212 !important;
+}
+
+/* Selected Option: Light Font on Dark Pitch-Black Background */
+.theme-beige [data-dropdown-item][data-selected="true"],
+.theme-beige [data-dropdown-item].is-selected,
+.theme-beige [data-dropdown-session][data-selected="true"],
+.theme-beige [data-dropdown-session].is-selected,
+.theme-beige [data-dropdown-menu] button[data-selected="true"],
+.theme-beige [data-dropdown-menu] button.is-selected,
+.theme-beige [data-dropdown-menu] button.bg-amber-500\/20,
+.theme-beige [data-dropdown-menu] button.bg-emerald-500\/20,
+.theme-beige [data-dropdown-menu] button.bg-blue-500\/20,
+.theme-beige [data-dropdown-menu] button.bg-indigo-600\/30,
+.theme-beige [data-dropdown-menu] button.bg-amber-600\/30,
+.theme-beige [data-dropdown-menu] button.bg-emerald-600\/30,
+.theme-beige [role="menu"] button[data-selected="true"],
+.theme-beige [role="menu"] button.is-selected,
+.theme-beige .relative > .absolute.z-50 button[data-selected="true"],
+.theme-beige .relative > .absolute.z-50 button.is-selected,
+.theme-beige .relative > .absolute.z-50 button.bg-amber-500\/20,
+.theme-beige .relative > .absolute.z-50 button.bg-emerald-500\/20,
+.theme-beige .relative > .absolute.z-50 button.bg-blue-500\/20,
+.theme-beige .relative > .absolute.z-50 button.bg-indigo-600\/30,
+.theme-beige .relative > .absolute.z-50 button.bg-amber-600\/30,
+.theme-beige .relative > .absolute.z-50 button.bg-emerald-600\/30 {
+  background-color: #121212 !important;
+  color: #FAF8F5 !important;
+  border: 1.5px solid #121212 !important;
+}
+
+.theme-beige [data-dropdown-item][data-selected="true"] *,
+.theme-beige [data-dropdown-item].is-selected *,
+.theme-beige [data-dropdown-session][data-selected="true"] *,
+.theme-beige [data-dropdown-session].is-selected *,
+.theme-beige [data-dropdown-menu] button[data-selected="true"] *,
+.theme-beige [data-dropdown-menu] button.is-selected *,
+.theme-beige [data-dropdown-menu] button.bg-amber-500\/20 *,
+.theme-beige [data-dropdown-menu] button.bg-emerald-500\/20 *,
+.theme-beige [data-dropdown-menu] button.bg-blue-500\/20 *,
+.theme-beige [data-dropdown-menu] button.bg-indigo-600\/30 *,
+.theme-beige [data-dropdown-menu] button.bg-amber-600\/30 *,
+.theme-beige [data-dropdown-menu] button.bg-emerald-600\/30 *,
+.theme-beige [role="menu"] button[data-selected="true"] *,
+.theme-beige [role="menu"] button.is-selected *,
+.theme-beige .relative > .absolute.z-50 button[data-selected="true"] *,
+.theme-beige .relative > .absolute.z-50 button.is-selected * {
+  color: #FAF8F5 !important;
+}
+
+.theme-beige [data-dropdown-item][data-selected="true"] .text-slate-400,
+.theme-beige [data-dropdown-item].is-selected .text-slate-400,
+.theme-beige [data-dropdown-menu] button.is-selected .text-slate-400 {
+  color: #D6CEBF !important;
+}
+
+.theme-beige [data-dropdown-item][data-selected="true"] svg,
+.theme-beige [data-dropdown-item].is-selected svg {
+  color: #FDE047 !important;
+}
+
+/* 5. General Selection Buttons, Pills & Filter Controls */
+/* Unselected: Dark Font on Light Background */
+.theme-beige [data-selection-button]:not([data-selected="true"]):not(.is-selected),
+.theme-beige [data-selection-card]:not([data-selected="true"]):not(.is-selected),
+.theme-beige [data-tab]:not([data-selected="true"]),
+.theme-beige button.bg-slate-800:not([data-selected="true"]):not(.is-selected),
+.theme-beige button.bg-slate-800\/80:not([data-selected="true"]):not(.is-selected),
+.theme-beige button.bg-slate-800\/60:not([data-selected="true"]):not(.is-selected),
+.theme-beige button.bg-slate-800\/40:not([data-selected="true"]):not(.is-selected),
+.theme-beige header button.bg-slate-800,
+.theme-beige header button.bg-slate-800\/60 {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border: 1px solid #D6CEBF !important;
+  font-weight: 600 !important;
+}
+
+.theme-beige [data-selection-button]:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige [data-selection-card]:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige button.bg-slate-800:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige button.bg-slate-800\/80:not([data-selected="true"]):not(.is-selected) *,
+.theme-beige button.bg-slate-800\/60:not([data-selected="true"]):not(.is-selected) * {
+  color: #121212 !important;
+}
+
+.theme-beige [data-selection-button]:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige [data-selection-card]:not([data-selected="true"]):not(.is-selected):hover,
+.theme-beige button.bg-slate-800:hover,
+.theme-beige button.bg-slate-800\/80:hover,
+.theme-beige header button.bg-slate-800:hover {
+  background-color: #F0EAE0 !important;
+  color: #000000 !important;
+  border-color: #121212 !important;
+}
+
+/* Selected: Light Font on Dark Background */
+.theme-beige [data-selection-button][data-selected="true"],
+.theme-beige [data-selection-card][data-selected="true"],
+.theme-beige [data-selection-button].is-selected,
+.theme-beige [data-selection-card].is-selected,
+.theme-beige [data-tab][data-selected="true"],
+.theme-beige button.bg-indigo-600,
+.theme-beige button.bg-indigo-600\/90,
+.theme-beige button.bg-emerald-600,
+.theme-beige button.bg-purple-600,
+.theme-beige button.bg-amber-500,
+.theme-beige button.bg-amber-600,
+.theme-beige button.bg-blue-600,
+.theme-beige [role="tab"][aria-selected="true"] {
+  background-color: #121212 !important;
+  color: #FAF8F5 !important;
+  border: 1.5px solid #121212 !important;
+  font-weight: 700 !important;
+}
+
+.theme-beige [data-selection-button][data-selected="true"] *,
+.theme-beige [data-selection-card][data-selected="true"] *,
+.theme-beige [data-selection-button].is-selected *,
+.theme-beige [data-selection-card].is-selected *,
+.theme-beige [data-tab][data-selected="true"] *,
+.theme-beige button.bg-indigo-600 *,
+.theme-beige button.bg-emerald-600 *,
+.theme-beige button.bg-purple-600 *,
+.theme-beige button.bg-amber-500 *,
+.theme-beige button.bg-amber-600 *,
+.theme-beige button.bg-blue-600 * {
+  color: #FAF8F5 !important;
+}
+
+.theme-beige [data-selection-card][data-selected="true"] svg,
+.theme-beige [data-selection-button][data-selected="true"] svg {
+  color: #FDE047 !important;
+}
+
+.theme-beige [data-selection-card][data-selected="true"] .bg-slate-900\/60,
+.theme-beige [data-selection-card].is-selected .bg-slate-900\/60,
+.theme-beige [data-selection-card][data-selected="true"] .bg-slate-900\/50,
+.theme-beige [data-selection-card].is-selected .bg-slate-900\/50 {
+  background-color: #1C1917 !important;
+  color: #FAF8F5 !important;
+  border-color: #2E2A27 !important;
+}
+
+.theme-beige [data-selection-card][data-selected="true"] .bg-slate-900\/60 *,
+.theme-beige [data-selection-card].is-selected .bg-slate-900\/60 * {
+  color: #FAF8F5 !important;
+}
+
+.theme-beige [data-selection-card][data-selected="true"] .text-slate-400,
+.theme-beige [data-selection-card].is-selected .text-slate-400 {
+  color: #D6CEBF !important;
+}
+
+/* 6. Primary Action Buttons */
+.theme-beige button[data-action-button="apply"],
+.theme-beige button[data-action-button="primary"],
+.theme-beige button.bg-gradient-to-r.from-amber-500,
+.theme-beige button.bg-gradient-to-r.from-indigo-600 {
+  background-color: #121212 !important;
+  background-image: none !important;
+  color: #FAF8F5 !important;
+  border: 1.5px solid #121212 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(18, 18, 18, 0.2) !important;
+}
+
+.theme-beige button[data-action-button="apply"]:hover,
+.theme-beige button[data-action-button="primary"]:hover,
+.theme-beige button.bg-gradient-to-r.from-amber-500:hover,
+.theme-beige button.bg-gradient-to-r.from-indigo-600:hover {
+  background-color: #27272A !important;
+  color: #FFFFFF !important;
+  border-color: #27272A !important;
+}
+
+.theme-beige button[data-action-button="apply"] *,
+.theme-beige button[data-action-button="primary"] *,
+.theme-beige button.bg-gradient-to-r.from-amber-500 * {
+  color: #FAF8F5 !important;
+}
+
+/* Sticky top navigation */
+.theme-beige .sticky.top-0 {
+  background-color: rgba(248, 245, 238, 0.96) !important;
+  border-bottom-color: #E2DDD0 !important;
+}
+
+/* Bottom status bar */
+.theme-beige .fixed.bottom-0 {
+  background-color: rgba(245, 240, 230, 0.96) !important;
+  border-top-color: #E2DDD0 !important;
+  color: #121212 !important;
+}
+
+/* Modal backdrops & dialog surfaces */
+.theme-beige .bg-black\/80,
+.theme-beige .bg-black\/85,
+.theme-beige .bg-black\/75 {
+  background-color: rgba(18, 18, 18, 0.65) !important;
+}
+
+.theme-beige .fixed.inset-0 .bg-slate-900,
+.theme-beige .fixed.inset-0 .bg-slate-950 {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border-color: #121212 !important;
+}
+
+.theme-beige .fixed.inset-0 .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #E2DDD0 !important;
+}
+
+/* Footer */
+.theme-beige footer {
+  background-color: #EFE8DC !important;
+  border-top-color: #E0D9CB !important;
+  color: #57534E !important;
+}
+
+/* Headings auto-adopt editorial font when in beige theme */
+.theme-beige h1,
+.theme-beige h2,
+.theme-beige h3 {
+  letter-spacing: -0.015em;
+}
+
+/* User Persona Cards in Modal */
+.theme-beige [data-selection-card="user-persona"]:not([data-selected="true"]) {
+  background-color: #FFFFFF !important;
+  color: #121212 !important;
+  border: 1.5px solid #D6CEBF !important;
+}
+
+.theme-beige [data-selection-card="user-persona"]:not([data-selected="true"]) * {
+  color: #121212 !important;
+}
+
+.theme-beige [data-selection-card="user-persona"]:not([data-selected="true"]) .text-slate-400 {
+  color: #57534E !important;
+}
+
+.theme-beige [data-selection-card="user-persona"][data-selected="true"],
+.theme-beige [data-selection-card="user-persona"].is-selected {
+  background-color: #121212 !important;
+  color: #FAF8F5 !important;
+  border: 2px solid #121212 !important;
+  box-shadow: 0 4px 16px rgba(18, 18, 18, 0.25) !important;
+}
+
+.theme-beige [data-selection-card="user-persona"][data-selected="true"] *,
+.theme-beige [data-selection-card="user-persona"].is-selected * {
+  color: #FAF8F5 !important;
+}
+
+.theme-beige [data-selection-card="user-persona"][data-selected="true"] .text-slate-400,
+.theme-beige [data-selection-card="user-persona"].is-selected .text-slate-400 {
+  color: #D6CEBF !important;
+}
+

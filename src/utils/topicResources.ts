@@ -19,6 +19,30 @@ export function getFacultyForPaper(paperShortName: string): {
 } {
   const norm = (paperShortName || '').toLowerCase();
 
+  if (norm.includes('fr') || norm.includes('ind as')) {
+    return {
+      freeFaculty: 'CA Ajay Agarwal / CA Bhavik Chokshi',
+      paidFaculty: 'CA Ajay Agarwal',
+      paidInstitute: 'BB Virtuals / Aldine CA',
+      bareActType: 'MCA Ind AS Compendium & ICAI BoS',
+    };
+  }
+  if (norm.includes('afm') || norm.includes('financial management') && norm.includes('advanced')) {
+    return {
+      freeFaculty: 'CA Ajay Agarwal / CA Aditya Jain',
+      paidFaculty: 'CA Aditya Jain / CA Ashish Kalra',
+      paidInstitute: 'BB Virtuals / Astitva Academy',
+      bareActType: 'RBI & SEBI Financial Market Regulations',
+    };
+  }
+  if (norm.includes('ibs') || norm.includes('integrated')) {
+    return {
+      freeFaculty: 'CA Final Integrated Case Studies Team',
+      paidFaculty: 'CA Final Faculty Consortium',
+      paidInstitute: 'Premier CA Final Institute',
+      bareActType: 'ICAI Integrated Case Studies Compendium',
+    };
+  }
   if (norm.includes('law')) {
     return {
       freeFaculty: 'CA Shubham Singhal (The Ultimate CA)',
@@ -35,12 +59,12 @@ export function getFacultyForPaper(paperShortName: string): {
       bareActType: 'ICAI Accounting Standards (AS) Portal',
     };
   }
-  if (norm.includes('tax') || norm.includes('dt') || norm.includes('gst')) {
+  if (norm.includes('tax') || norm.includes('dt') || norm.includes('gst') || norm.includes('idt')) {
     return {
-      freeFaculty: 'CA Bhanwar Borana (DT) & CA Vishal Bhattad (GST)',
-      paidFaculty: 'CA Bhanwar Borana (BB Virtuals)',
+      freeFaculty: 'CA Bhanwar Borana (DT) & CA Vishal Bhattad (IDT)',
+      paidFaculty: 'CA Bhanwar Borana (BB Sir)',
       paidInstitute: 'BB Virtuals / Vsmart',
-      bareActType: 'Income Tax Act 1961 & CGST Act 2017',
+      bareActType: 'Income Tax Act 1961 & CGST/IGST Acts',
     };
   }
   if (norm.includes('cost')) {
@@ -53,9 +77,9 @@ export function getFacultyForPaper(paperShortName: string): {
   }
   if (norm.includes('audit')) {
     return {
-      freeFaculty: 'CA Neeraj Arora / CA Rishabh Jain',
-      paidFaculty: 'CA Neeraj Arora',
-      paidInstitute: 'Edu91',
+      freeFaculty: 'CA Shubham Keswani / CA Neeraj Arora',
+      paidFaculty: 'CA Shubham Keswani',
+      paidInstitute: 'BB Virtuals / Edu91',
       bareActType: 'ICAI Standards on Auditing (SAs) Compendium',
     };
   }
@@ -172,7 +196,10 @@ export function getSubtopicRedirectUrl(
   subtopic: string,
   type: 'youtube' | 'google' | 'icai_sm'
 ): string {
-  const query = encodeURIComponent(`CA Inter ${paperShortName} ${subtopic}`);
+  const norm = (paperShortName || '').toLowerCase();
+  const isFinal = norm.includes('fr') || norm.includes('afm') || norm.includes('ind as') || norm.includes('ibs') || norm.includes('int tax');
+  const levelPrefix = isFinal ? 'CA Final' : 'CA Inter';
+  const query = encodeURIComponent(`${levelPrefix} ${paperShortName} ${subtopic}`);
   if (type === 'youtube') {
     return `https://www.youtube.com/results?search_query=${query}+concept`;
   }

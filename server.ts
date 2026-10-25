@@ -25,31 +25,39 @@ const ai = new GoogleGenAI({
   },
 });
 
-// Comprehensive system prompt defining the CA Intermediate Mentor & Dashboard Copilot
+// Comprehensive system prompt defining the CA Foundation, Intermediate & Final Mentor & Dashboard Copilot
 const CA_ASSISTANT_SYSTEM_INSTRUCTION = `
-You are the elite "CA Inter AI Copilot & Research Mentor", built specifically into the CA Intermediate May 2027 Study Planner application.
-Your user is an ambitious CA aspirant and working professional adhering to the strict 5-hour daily protocol:
+You are the elite "ICAI Chartered Accountancy AI Copilot & Research Mentor", built specifically for CA Foundation, CA Intermediate & CA Final May 2027 aspirants.
+Your user is an ambitious CA aspirant and working student adhering to the strict 5-hour daily protocol:
 - Wake up: ~06:00 AM
-- Morning Slot (1.5 Hours, 06:30 - 08:00 AM): High-focus Theory & Law subjects (Corporate Law, Tax Provisions, Auditing Standards).
-- Work Hours: 09:00 AM - 07:00 PM.
-- Evening Slot (3.5 Hours, 20:00 - 00:00 / 8:00 PM - 12:00 AM): Heavy Practical subjects (Advanced Accounting, Cost & Management Accounting, Financial Management).
+- Morning Slot (1.5 Hours, 06:30 - 08:00 AM): High-focus Theory, Standards & Law:
+  * CA Foundation: Business Laws (Contract Act 1872, Sale of Goods 1930, Partnership 1932, LLP 2008, Companies 2013, NI Act 1881), Business Economics.
+  * CA Inter: Corporate & Other Laws, Direct/Indirect Tax provisions, Auditing Standards.
+  * CA Final: Advanced Auditing & Professional Ethics (Code of Ethics, SAs), Direct Tax & International Taxation, Ind AS disclosures.
+- Daytime Hours: 09:00 AM - 07:00 PM (Office/Articleship/College).
+- Evening Slot (3.5 Hours, 20:00 - 00:00 / 8:00 PM - 12:00 AM): Heavy Practical & Numerical problem solving:
+  * CA Foundation: Accounting (BRS, Inventory, Depreciation, Final Accounts, NPO, Partnership, Company Accounts), Quantitative Aptitude (Business Maths, Logical Reasoning, Statistics).
+  * CA Inter: Advanced Accounting, Cost & Management Accounting, Financial Management (FM-SM).
+  * CA Final: Financial Reporting (Ind AS 115, 116, 109, Business Combinations), Advanced Financial Management (AFM Forex, Derivatives, Portfolio), Indirect Tax Laws (GST & Customs).
 
 You have dual core capabilities:
 1. DASHBOARD COPILOT & NAVIGATION GUIDE:
 - You know every feature of this planner:
+  * "Course Stream Switcher": Seamlessly switches between CA Foundation, CA Intermediate, and CA Final anytime without losing progress.
+  * "Free & Paid Courses Dropdown": Filters resources between Free Only (ICAI BoS, Live Virtual Classes, YouTube), Paid Only (Top Faculty Batches, Scanners, PrepCA Test Series), or All, plus a complete searchable Course Directory.
   * "Daily 5h Scheduler": Time-blocked schedule from 06:00 AM to midnight, with integrated 1.5h and 3.5h blocks, Pomodoro timer (25/5 or 50/10), and Deep Work mode.
-  * "Daily Topic Blueprint": Exact day-by-day roadmap till May 1, 2027 exam date covering all ICAI chapters, with tracking for spent minutes, completion status, and clickable study references (ICAI SM page numbers, YouTube video links).
-  * "ICAI Syllabus Tracker": All 6 Papers of ICAI New Scheme (Paper 1 Adv Acc, Paper 2 Corp & Other Laws, Paper 3 Tax, Paper 4 Costing, Paper 5 Audit, Paper 6 FM-SM), tracked across 1st Read, Notes, ICAI Questions, RTP/MTP, and 3 spaced revisions.
+  * "Daily Topic Blueprint": Day-by-day roadmap starting strictly on 26-Oct-26 till May 1, 2027 exam date covering all ICAI chapters, with tracking for spent minutes, interactive checkboxes/tick marks, top/bottom percentage progress bars, and clickable study references (ICAI SM, YouTube video links, scanners).
+  * "Quick-Fire AI Flashcards": Generates 5-10 active-recall flashcards for any topic covering provisions, formulas, limits, and traps.
+  * "ICAI Syllabus Tracker": All Papers of ICAI New Scheme (Foundation: 4 Papers; Inter: 6 Papers; Final: 6 Papers).
   * "Backlog Balancer": Auto-calculates deficit when days are missed and distributes catch-up hours across weekend slots so the user never burns out.
-  * "Deep Work Session": Full-screen distraction-free timer with ambient soundscapes (rain, library, white noise) and notification suppression.
+  * "Deep Work Session": Full-screen distraction-free timer with ambient soundscapes and notification suppression.
   * "Streaks & Heatmap": Tracks consistency, daily hours logged, and visual study heatmaps.
-  * "Daily Hours Logger": Modal to log morning vs evening hours, mood, and chapter studied.
 - When the user asks how to do something in the app, give crisp, actionable instructions and suggest navigation shortcuts (e.g. "Switch to Daily Topic Blueprint tab", "Click Backlog Balancer in the top header", "Start Deep Work session").
 
 2. ICAI STUDY & WEB RESEARCH ENGINE:
 - Help the student master concepts, solve doubts, remember sections/standards, and research real-time legal and syllabus updates.
-- Grounded web search: Use web search grounding to fetch latest ICAI notifications, RTP/MTP announcements, case law citations, tax slabs under Finance Act, and statutory amendments for CA Inter.
-- ICAI Answer Writing Protocol: When explaining law or auditing questions, structure answers according to the ICAI exam standard:
+- Grounded web search: Use web search grounding to fetch latest ICAI notifications, RTP/MTP announcements, case law citations, tax slabs under Finance Act, and statutory amendments for CA Foundation, Inter & Final.
+- ICAI Answer Writing Protocol: When explaining law, auditing, or tax questions, structure answers according to the ICAI exam standard:
   (a) Relevant Legal Provision / Standard (e.g., Section of Companies Act 2013, Standard on Auditing SA, AS/Ind AS standard)
   (b) Analysis & Application to Facts
   (c) Conclusion & Practical Implication
@@ -221,6 +229,87 @@ function getCuratedFallbackFlashcards(
   const titleLower = (topicTitle || '').toLowerCase();
   const subtopicsText = subtopics.join('; ');
 
+  // CA Foundation: Indian Contract Act 1872 & Business Laws
+  if (titleLower.includes('contract act') || titleLower.includes('offer') || titleLower.includes('consideration') || titleLower.includes('sale of goods') || titleLower.includes('negotiable')) {
+    return [
+      {
+        id: 'fc-fnd-law-1',
+        question: 'Under Section 10 of Indian Contract Act 1872, what are the essential elements of a valid contract?',
+        answer: '1. Agreement (Offer + Acceptance with consensus ad idem)\n2. Free Consent (Sec 14: No coercion, undue influence, fraud, misrepresentation, mistake)\n3. Competency of Parties (Sec 11: Major, sound mind, not disqualified)\n4. Lawful Consideration & Lawful Object (Sec 23)\n5. Not expressly declared void (Sec 24-30)\n6. Intention to create legal relationship (Balfour v Balfour).',
+        category: 'Core Legal Principles',
+        difficulty: 'Medium',
+        keyTakeaway: 'All contracts are agreements, but all agreements are not contracts (Sec 10 filter).',
+        examTip: 'Cite Balfour v Balfour for social/domestic agreements lacking intention to create legal relations.',
+      },
+      {
+        id: 'fc-fnd-law-2',
+        question: 'What is the doctrine of "Privity of Consideration" vs "Privity of Contract"?',
+        answer: '• Privity of Consideration: In India, consideration may move from the promisee OR any other third person (Chinnaya v Ramayya). Hence, stranger to consideration CAN sue!\n• Privity of Contract: A stranger to a contract cannot sue (Dunlop Pneumatic Tyre v Selfridge). Exception: Trust, Family settlement, Acknowledgement of debt.',
+        category: 'Landmark Precedent',
+        difficulty: 'Hard',
+        keyTakeaway: 'Stranger to Consideration CAN sue; Stranger to Contract CANNOT sue (subject to exceptions).',
+        examTip: 'Landmark case: Chinnaya v Ramayya (Consideration moved from mother, yet daughter was liable to maternal aunt).',
+      },
+      {
+        id: 'fc-fnd-law-3',
+        question: 'Under Section 138 of Negotiable Instruments Act 1881, what are the conditions for cheque dishonour penalty?',
+        answer: '1. Cheque presented within validity (3 months from date of issue).\n2. Demand notice in writing sent by payee within 30 days of receiving return memo.\n3. Drawer fails to make payment within 15 days of receipt of notice.\nPenalty: Imprisonment up to 2 years, or fine up to twice the cheque amount, or both.',
+        category: 'Statutory Timelines',
+        difficulty: 'Hard',
+        keyTakeaway: '30-day notice -> 15 days to pay -> 1 month to file complaint before Magistrate.',
+        examTip: 'Offence under Sec 138 is compoundable and bailable.',
+      },
+    ];
+  }
+
+  // CA Foundation: Quantitative Aptitude - Time Value of Money (TVM) & Maths
+  if (titleLower.includes('time value of money') || titleLower.includes('tvm') || titleLower.includes('annuity') || titleLower.includes('perpetuity') || titleLower.includes('maths')) {
+    return [
+      {
+        id: 'fc-fnd-tvm-1',
+        question: 'What is the formula for Effective Rate of Interest (E) compounded m times a year?',
+        answer: 'E = (1 + i/m)^m - 1\nwhere i = nominal annual interest rate, and m = number of conversion periods per year (e.g. m=4 for quarterly, m=12 for monthly).',
+        category: 'TVM Formula',
+        difficulty: 'Medium',
+        keyTakeaway: 'Effective rate is always strictly higher than nominal rate whenever compounding occurs more than once a year.',
+        examTip: 'Calculator shortcut: (1 + i/m) [x] [=] (m-1 times) [-] 1 [x] 100.',
+      },
+      {
+        id: 'fc-fnd-tvm-2',
+        question: 'What is the Present Value formula for an Annuity Regular vs Annuity Due vs Perpetuity?',
+        answer: '• PV (Annuity Regular) = A × [1 - (1+i)^-n] / i\n• PV (Annuity Due) = PV (Regular) × (1 + i)\n• PV (Perpetuity) = A / i\n• PV (Growing Perpetuity) = A / (i - g)',
+        category: 'Calculator & Formulas',
+        difficulty: 'Hard',
+        keyTakeaway: 'Annuity Due payments happen at BEGINNING of period, so multiply by (1+i). Perpetuity has n -> infinity.',
+        examTip: 'On Casio/Citizen calculator: 1 ÷ (1+i) [=] [=] ... n times [GT] × A gives PV of Annuity Regular directly!',
+      },
+    ];
+  }
+
+  // CA Foundation: Accounting (BRS, Rectification, Inventory)
+  if (titleLower.includes('bank reconciliation') || titleLower.includes('brs') || titleLower.includes('rectification') || titleLower.includes('single entry') || titleLower.includes('consignment')) {
+    return [
+      {
+        id: 'fc-fnd-acc-1',
+        question: 'In Bank Reconciliation Statement (BRS), why is an "Adjusted Cash Book" prepared first before BRS?',
+        answer: 'Adjusted Cash Book is prepared to record genuine transactions and errors that occurred in the Cash Book itself (e.g., Bank charges debited by bank, direct customer deposits, interest credited, unrecorded standing orders, errors in Cash Book casting). Only timing differences (cheques issued not presented, cheques deposited not credited) go into the final BRS.',
+        category: 'Accounting Protocol',
+        difficulty: 'Medium',
+        keyTakeaway: 'Cash book errors & bank advices are adjusted in Cash Book first; only uncleared/unpresented cheques go into BRS.',
+        examTip: 'If question asks for Adjusted Cash Book, never put "Cheques issued but not presented" in the Cash Book.',
+      },
+      {
+        id: 'fc-fnd-acc-2',
+        question: 'What is the rule of Inventory Valuation under AS 2 and ICAI Foundation Framework?',
+        answer: 'Inventories must be valued at Lower of Cost or Net Realizable Value (NRV).\n• Cost = Purchase cost + Conversion costs + Other costs incurred in bringing inventories to their present location and condition.\n• NRV = Estimated selling price in ordinary course of business less estimated completion & selling costs.',
+        category: 'Valuation Standard',
+        difficulty: 'Easy',
+        keyTakeaway: 'Prudence principle: Recognize potential losses immediately (NRV < Cost), but never anticipatory profits.',
+        examTip: 'Compare Cost and NRV item-by-item (individual basis), not global basket basis.',
+      },
+    ];
+  }
+
   // Domain-specific tailored card collections
   if (titleLower.includes('incorporation') || titleLower.includes('preliminary') || titleLower.includes('sec 1-22') || titleLower.includes('company')) {
     return [
@@ -331,6 +420,114 @@ function getCuratedFallbackFlashcards(
     ];
   }
 
+  // CA Final: Ind AS 115 / 116 / Financial Instruments
+  if (titleLower.includes('ind as 115') || titleLower.includes('revenue from contract') || titleLower.includes('ind as 116') || titleLower.includes('leases') || titleLower.includes('ind as 109') || titleLower.includes('financial reporting')) {
+    return [
+      {
+        id: 'fc-indas-1',
+        question: 'Under Ind AS 115, what are the 5 Steps in the Revenue Recognition Model?',
+        answer: '1. Identify the contract with the customer.\n2. Identify the separate performance obligations (PO) in the contract.\n3. Determine the transaction price.\n4. Allocate the transaction price to POs based on standalone selling prices (SSP).\n5. Recognize revenue when/as the entity satisfies each PO.',
+        category: 'Core Framework',
+        difficulty: 'Easy',
+        keyTakeaway: '5-Step Golden Mantra: Contract -> PO -> Price -> Allocate -> Recognize.',
+        examTip: 'Remember: Variable consideration is estimated using Expected Value or Most Likely Amount, subject to the constraint.',
+      },
+      {
+        id: 'fc-indas-2',
+        question: 'Under Ind AS 116, how is the initial measurement of Lease Liability and Right-of-Use (ROU) Asset computed by a lessee?',
+        answer: '• Lease Liability = Present Value (PV) of unpaid lease payments discounted at the Interest Rate Implicit in Lease (or lessee incremental borrowing rate).\n• ROU Asset = Initial Lease Liability + Lease payments made at/before commencement + Initial Direct Costs + Estimated dismantling/restoration costs - Lease incentives received.',
+        category: 'Journal Entry & Valuation',
+        difficulty: 'Hard',
+        keyTakeaway: 'ROU Asset includes upfront payments, initial direct costs, and restoration provisions.',
+        examTip: 'Depreciate ROU Asset over lease term or useful life (if title transfers or purchase option reasonably certain).',
+      },
+      {
+        id: 'fc-indas-3',
+        question: 'Under Ind AS 109, what are the two criteria for a financial asset to be measured at Amortised Cost?',
+        answer: '1. Business Model Test: The objective is to hold financial assets in order to collect contractual cash flows.\n2. SPPI Test: Contractual terms give rise on specified dates to cash flows that are Solely Payments of Principal and Interest.',
+        category: 'Classification Standard',
+        difficulty: 'Medium',
+        keyTakeaway: 'Passes SPPI + Held to Collect = Amortised Cost.',
+        examTip: 'If SPPI fails, the asset MUST be classified at FVTPL (Fair Value through Profit or Loss).',
+      },
+      {
+        id: 'fc-indas-4',
+        question: 'Under Ind AS 103 (Business Combinations), how is Goodwill / Gain on Bargain Purchase computed?',
+        answer: 'Goodwill = Purchase Consideration transferred + Non-Controlling Interest (NCI) at fair value or proportionate net assets + Fair value of previously held interest - Fair value of Net Identifiable Assets acquired.',
+        category: 'Calculation Protocol',
+        difficulty: 'Hard',
+        keyTakeaway: 'Goodwill is tested annually for impairment; Gain on Bargain Purchase is credited to OCI / Capital Reserve.',
+        examTip: 'Acquisition-related transaction costs (advisory, legal) are expensed in P&L, NOT capitalized to Goodwill.',
+      },
+    ];
+  }
+
+  // CA Final: Advanced Financial Management (AFM Forex / Derivatives / Portfolio)
+  if (titleLower.includes('forex') || titleLower.includes('currency') || titleLower.includes('derivatives') || titleLower.includes('afm') || titleLower.includes('portfolio')) {
+    return [
+      {
+        id: 'fc-afm-1',
+        question: 'What is Interest Rate Parity (IRP) formula for forward rate quotation?',
+        answer: 'Forward Rate / Spot Rate = (1 + Rh) / (1 + Rf)\nwhere Rh = Home currency interest rate, Rf = Foreign currency interest rate for the period.',
+        category: 'Formula & Calculation',
+        difficulty: 'Medium',
+        keyTakeaway: 'High interest rate currency trades at a forward discount; low interest rate trades at forward premium.',
+        examTip: 'If IRP does not hold, Covered Interest Arbitrage (CIA) opportunity exists. Borrow low, convert spot, invest high, lock forward.',
+      },
+      {
+        id: 'fc-afm-2',
+        question: 'How is Money Market Hedge executed for an impending Foreign Currency Inflow (Receivable)?',
+        answer: '1. Borrow foreign currency now at foreign borrowing rate (PV of receivable).\n2. Convert borrowed foreign currency to home currency immediately at Spot Bid rate.\n3. Invest home currency in local money market till maturity.\n4. When customer pays receivable, use it to pay off the foreign bank loan.',
+        category: 'Hedging Strategy',
+        difficulty: 'Hard',
+        keyTakeaway: 'Receivable: Borrow foreign -> Spot sell -> Invest home. Payable: Borrow home -> Spot buy -> Invest foreign.',
+        examTip: 'Always compare net realization from Money Market Hedge with Forward Contract rate and Option Hedge.',
+      },
+      {
+        id: 'fc-afm-3',
+        question: 'What is the formula for Capital Asset Pricing Model (CAPM) and Beta calculation?',
+        answer: '• Ke = Rf + β × (Rm - Rf), where (Rm - Rf) is Equity Risk Premium.\n• Beta (β) = Cov(i, m) / Var(m) = [r(i,m) × σ(i)] / σ(m).',
+        category: 'Valuation & Risk',
+        difficulty: 'Medium',
+        keyTakeaway: 'Beta measures systematic, non-diversifiable market risk.',
+        examTip: 'Unlevered Beta = Levered Beta / [1 + (1 - Tax Rate) × (Debt / Equity)].',
+      },
+    ];
+  }
+
+  // CA Final: Advanced Auditing & Professional Ethics (SAs, Code of Ethics)
+  if (titleLower.includes('ethics') || titleLower.includes('clause') || titleLower.includes('sa ') || titleLower.includes('auditing standard') || titleLower.includes('audit')) {
+    return [
+      {
+        id: 'fc-audit-1',
+        question: 'Under Clause 6, Part I, First Schedule to CA Act, what is the rule regarding soliciting professional work or advertisement?',
+        answer: 'A member in practice shall be guilty of professional misconduct if he solicits clients or professional work, directly or indirectly, by circular, advertisement, personal communication, or interview.\nExceptions: Responding to tenders satisfying ICAI guidelines, writing books/articles, or ICAI job portal.',
+        category: 'Professional Ethics',
+        difficulty: 'Medium',
+        keyTakeaway: 'No direct or indirect solicitation; tenders allowed only with specified minimum criteria.',
+        examTip: 'Mention: "Council Guidelines regarding Website and Social Media: Only pull mode allowed, push mode prohibited".',
+      },
+      {
+        id: 'fc-audit-2',
+        question: 'Under SA 701, what are Key Audit Matters (KAM) and who are they mandatory for?',
+        answer: 'Matters that, in the auditor’s professional judgment, were of most significance in the audit of financial statements of current period, selected from matters communicated with TCWG (Those Charged with Governance).\nMandatory for audits of complete sets of general purpose financial statements of listed entities.',
+        category: 'Auditing Standard',
+        difficulty: 'Medium',
+        keyTakeaway: 'KAM is required for listed entities; chosen from matters discussed with TCWG.',
+        examTip: 'KAM does NOT substitute for modified opinion under SA 705 or Material Uncertainty Related to Going Concern under SA 570.',
+      },
+      {
+        id: 'fc-audit-3',
+        question: 'Under SA 240, what are the auditor’s responsibilities relating to fraud in an audit?',
+        answer: 'Maintain professional skepticism throughout the audit. Primary responsibility for prevention and detection rests with TCWG and management. Auditor must identify and assess RMM due to fraud, design appropriate responses, and report under Section 143(12) via Form ADT-4 to Central Govt if fraud >= ₹1 Crore.',
+        category: 'Fraud Reporting',
+        difficulty: 'Hard',
+        keyTakeaway: 'Fraud >= ₹1 Crore -> ADT-4 to Central Government within specified statutory deadlines.',
+        examTip: 'Mention the two types of intentional misstatements: Fraudulent Financial Reporting & Misappropriation of Assets.',
+      },
+    ];
+  }
+
   // Default smart dynamic cards generated from subtopics and topic title
   const cards: any[] = [];
   const baseSubtopics = subtopics.length > 0 ? subtopics : [
@@ -360,10 +557,13 @@ function getCuratedFallbackFlashcards(
 // AI Quick-Fire Flashcards Generator API Route
 app.post('/api/ai/flashcards', async (req, res) => {
   try {
-    const { topicTitle, paperCode = '', paperShortName = '', subtopics = [] } = req.body;
+    const { topicTitle, paperCode = '', paperShortName = '', subtopics = [], courseLevel } = req.body;
     if (!topicTitle || typeof topicTitle !== 'string') {
       return res.status(400).json({ error: 'topicTitle string is required' });
     }
+
+    const isFinal = courseLevel === 'final' || paperCode.toLowerCase().includes('final') || topicTitle.toLowerCase().includes('ind as');
+    const examLevelName = isFinal ? 'CA Final' : 'CA Intermediate';
 
     if (!process.env.GEMINI_API_KEY) {
       const fallbackCards = getCuratedFallbackFlashcards(topicTitle, paperShortName, subtopics);
@@ -374,14 +574,14 @@ app.post('/api/ai/flashcards', async (req, res) => {
       ? `Specific subtopics to cover: ${subtopics.join(', ')}.` 
       : '';
 
-    const prompt = `You are the lead CA Intermediate examiner and mentor for ICAI New Scheme (May 2027 exams).
+    const prompt = `You are the lead ${examLevelName} examiner and mentor for ICAI New Scheme (May 2027 exams).
 Generate exactly 6 to 8 sharp, quick-fire revision flashcards for the topic: "${topicTitle}" (${paperCode} ${paperShortName}).
 ${subtopicsList}
 
-Rules for high-yield CA Intermediate flashcards:
-1. Question: Crisp, direct question testing a high-probability exam concept (e.g. "What are the 3 mandatory conditions under Sec 135 for CSR?", "Under AS 10, how are initial test run sales proceeds accounted for?", "What is the statutory threshold for...").
+Rules for high-yield ${examLevelName} flashcards:
+1. Question: Crisp, direct question testing a high-probability exam concept (e.g. for Final: Ind AS disclosures, Forex formulas, SAs, Code of Ethics clauses; for Inter: AS standards, Company Law sections, GST rules).
 2. Answer: Authoritative, concise ICAI standard answer (bullet points or exact rules, max 3-4 lines).
-3. Category: One of ["Statutory Limit", "Core Provision", "Exam Pitfall", "Journal Entry", "Auditing Standard", "Formula"].
+3. Category: One of ["Statutory Limit", "Core Provision", "Exam Pitfall", "Journal Entry", "Auditing Standard", "Formula", "Code of Ethics"].
 4. Difficulty: "Easy", "Medium", or "Hard".
 5. Key Takeaway: 1-sentence golden memory rule or mnemonic to lock it in memory.
 6. Exam Tip: Common mistake students make in ICAI exams.`;
@@ -390,7 +590,7 @@ Rules for high-yield CA Intermediate flashcards:
       model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
-        systemInstruction: 'You are an expert CA Intermediate revision flashcard generator for ICAI New Scheme. Always return strict structured JSON.',
+        systemInstruction: `You are an expert ${examLevelName} revision flashcard generator for ICAI New Scheme. Always return strict structured JSON.`,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.ARRAY,

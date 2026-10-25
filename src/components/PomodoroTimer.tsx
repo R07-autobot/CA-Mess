@@ -177,7 +177,10 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+    <div 
+      data-focus-section="pomodoro-timer"
+      className="bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden"
+    >
       {/* Background Glow */}
       <div className="absolute -right-16 -top-16 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 

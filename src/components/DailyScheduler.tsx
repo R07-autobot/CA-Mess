@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Chapter, Paper, PlannerState, StudyLogEntry } from '../types/ca-study';
 import { ICAI_PAPERS } from '../data/icaiSyllabus';
+import { CA_FINAL_PAPERS } from '../data/icaiFinalSyllabus';
+import { CA_FOUNDATION_PAPERS } from '../data/icaiFoundationSyllabus';
 import { PomodoroTimer } from './PomodoroTimer';
 import { DeepWorkSession } from './DeepWorkSession';
 import { 
@@ -50,13 +52,41 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
   const [timerMinimized, setTimerMinimized] = useState<boolean>(false);
   const [deepWorkSlot, setDeepWorkSlot] = useState<'morning' | 'evening' | null>(null);
 
-  // Filter theory chapters (for morning) and practical chapters (for evening)
-  const chaptersList = Object.values(state.chapters);
+  const allPapers =
+    state.courseLevel === 'foundation'
+      ? CA_FOUNDATION_PAPERS
+      : state.courseLevel === 'final'
+      ? CA_FINAL_PAPERS
+      : ICAI_PAPERS;
+
+  // Filter theory chapters (for morning) and practical chapters (for evening) respecting attempt portion
+  const chaptersList = Object.values(state.chapters).filter((c) => {
+    if (state.attemptPortion === 'group1') return c.group === 1;
+    if (state.attemptPortion === 'group2') return c.group === 2;
+    return true;
+  });
+
   const theoryCandidates = chaptersList.filter(
-    (c) => c.type === 'theory' || c.paperId === 'p2_corp_law' || c.paperId === 'p5_audit'
+    (c) =>
+      c.type === 'theory' ||
+      c.paperId === 'p2_corp_law' ||
+      c.paperId === 'p5_audit' ||
+      c.paperId === 'final_p3_audit' ||
+      c.paperId === 'final_p4_dt' ||
+      c.paperId === 'foundation_p2_law' ||
+      c.paperId === 'foundation_p4_eco'
   );
   const practicalCandidates = chaptersList.filter(
-    (c) => c.type === 'practical' || c.paperId === 'p1_adv_acc' || c.paperId === 'p4_costing' || c.paperId === 'p6_fm_sm'
+    (c) =>
+      c.type === 'practical' ||
+      c.paperId === 'p1_adv_acc' ||
+      c.paperId === 'p4_costing' ||
+      c.paperId === 'p6_fm_sm' ||
+      c.paperId === 'final_p1_fr' ||
+      c.paperId === 'final_p2_afm' ||
+      c.paperId === 'final_p5_idt' ||
+      c.paperId === 'foundation_p1_acc' ||
+      c.paperId === 'foundation_p3_qa'
   );
 
   // Pick or auto-pair chapters for the date
@@ -75,8 +105,8 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
     ? state.chapters[currentPlan.eveningTopic.chapterId] || defaultEvening
     : state.chapters[currentLog?.eveningChapterId || defaultEvening?.id] || defaultEvening;
 
-  const morningPaper = ICAI_PAPERS.find((p) => p.id === morningChapter?.paperId);
-  const eveningPaper = ICAI_PAPERS.find((p) => p.id === eveningChapter?.paperId);
+  const morningPaper = allPapers.find((p) => p.id === morningChapter?.paperId);
+  const eveningPaper = allPapers.find((p) => p.id === eveningChapter?.paperId);
 
   const morningHours = currentLog?.morningHours ?? (currentPlan ? Number(((currentPlan.morningTopic.spentMinutes || 0) / 60).toFixed(1)) : 0);
   const eveningHours = currentLog?.eveningHours ?? (currentPlan ? Number(((currentPlan.eveningTopic.spentMinutes || 0) / 60).toFixed(1)) : 0);
@@ -135,6 +165,10 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
   const activePaper = activeSlot === 'morning' ? morningPaper : eveningPaper;
   const deepWorkChapter = deepWorkSlot === 'morning' ? morningChapter : eveningChapter;
   const deepWorkPaper = deepWorkSlot === 'morning' ? morningPaper : eveningPaper;
+
+  const isStudent = state.userPersona === 'student';
+  const morningSlotHours = state.backlogConfig?.morningSlotHours || (isStudent ? 4.0 : 1.5);
+  const eveningSlotHours = state.backlogConfig?.eveningSlotHours || (isStudent ? 4.0 : 3.5);
 
   return (
     <div className="space-y-6">
@@ -205,7 +239,10 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
       </div>
 
       {/* Deep Work Session Callout Banner */}
-      <div className="bg-gradient-to-r from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div 
+        data-focus-section="deep-work-banner"
+        className="bg-gradient-to-r from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div className="flex items-start sm:items-center gap-3">
           <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex-shrink-0">
             <Lock className="w-5 h-5" />
@@ -219,7 +256,7 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
                 <BellOff className="w-3 h-3" /> Notifications Silenced
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                1.5h Morning • 3.5h Evening
+                {morningSlotHours}h Morning • {eveningSlotHours}h Evening
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-1">
@@ -232,19 +269,19 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
           <button
             onClick={() => handleStartDeepWork('morning')}
             className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/20 cursor-pointer active:scale-95"
-            title="Lock Morning Theory 1.5h Session (06:30 - 08:00 AM)"
+            title={`Lock Morning Session (${morningSlotHours}h)`}
           >
             <Sun className="w-3.5 h-3.5" />
-            <span>Lock Morning (1.5h)</span>
+            <span>Lock Morning ({morningSlotHours}h)</span>
           </button>
 
           <button
             onClick={() => handleStartDeepWork('evening')}
             className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/30 cursor-pointer active:scale-95"
-            title="Lock Evening Practical 3.5h Session (08:00 - 12:00 AM)"
+            title={`Lock Evening Session (${eveningSlotHours}h)`}
           >
             <Moon className="w-3.5 h-3.5" />
-            <span>Lock Evening (3.5h)</span>
+            <span>Lock Evening ({eveningSlotHours}h)</span>
           </button>
         </div>
       </div>
@@ -270,11 +307,11 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-white">Morning Focus Slot</h3>
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    Theory / Law
+                    Theory / Core Concepts
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  {state.morningSlotTime} • Rigid 1.5h Capacity
+                  {state.morningSlotTime} • {morningSlotHours}h Capacity
                 </p>
               </div>
             </div>
@@ -282,7 +319,7 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
             <div className="text-right">
               <span className="text-xs text-slate-400 block">Logged</span>
               <span className="text-lg font-black font-mono text-amber-400">
-                {morningHours.toFixed(1)} <span className="text-xs text-slate-500">/ 1.5h</span>
+                {morningHours.toFixed(1)} <span className="text-xs text-slate-500">/ {morningSlotHours}h</span>
               </span>
             </div>
           </div>
@@ -401,9 +438,9 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
                   handleStartDeepWork('morning');
                 }}
                 className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
-                title="Lock into full-screen distraction-free 1.5h mode"
+                title={`Lock into full-screen distraction-free ${morningSlotHours}h mode`}
               >
-                <Lock className="w-3.5 h-3.5" /> Lock Deep Work (1.5h)
+                <Lock className="w-3.5 h-3.5" /> Lock Deep Work ({morningSlotHours}h)
               </button>
               <button
                 onClick={(e) => {
@@ -438,11 +475,11 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-white">Evening Focus Slot</h3>
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                    Practical / Numerical
+                    Practical / Problem Solving
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  {state.eveningSlotTime} • Rigid 3.5h Capacity
+                  {state.eveningSlotTime} • {eveningSlotHours}h Capacity
                 </p>
               </div>
             </div>
@@ -450,7 +487,7 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
             <div className="text-right">
               <span className="text-xs text-slate-400 block">Logged</span>
               <span className="text-lg font-black font-mono text-blue-400">
-                {eveningHours.toFixed(1)} <span className="text-xs text-slate-500">/ 3.5h</span>
+                {eveningHours.toFixed(1)} <span className="text-xs text-slate-500">/ {eveningSlotHours}h</span>
               </span>
             </div>
           </div>
@@ -569,9 +606,9 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
                   handleStartDeepWork('evening');
                 }}
                 className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
-                title="Lock into full-screen distraction-free 3.5h mode"
+                title={`Lock into full-screen distraction-free ${eveningSlotHours}h mode`}
               >
-                <Lock className="w-3.5 h-3.5" /> Lock Deep Work (3.5h)
+                <Lock className="w-3.5 h-3.5" /> Lock Deep Work ({eveningSlotHours}h)
               </button>
               <button
                 onClick={(e) => {
@@ -608,6 +645,7 @@ export const DailyScheduler: React.FC<DailySchedulerProps> = ({
           isOpen={Boolean(deepWorkSlot)}
           onClose={handleEndDeepWork}
           slot={deepWorkSlot}
+          targetMinutes={deepWorkSlot === 'morning' ? Math.round(morningSlotHours * 60) : Math.round(eveningSlotHours * 60)}
           chapter={deepWorkChapter}
           paper={deepWorkPaper}
           onUpdateChapterMilestone={onUpdateChapterMilestone}

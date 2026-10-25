@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Chapter, PlannerState, StudyLogEntry, BacklogConfig, AppTheme, TopicLinkReference } from './types/ca-study';
+import { Chapter, PlannerState, StudyLogEntry, BacklogConfig, AppTheme, TopicLinkReference, CourseLevel, CourseFilterType, AttemptPortion, ExamSession, AppFontFamily, UserPersona } from './types/ca-study';
 import { 
   getDefaultState, 
   loadPlannerState, 
   savePlannerState, 
-  getSampleState 
+  getSampleState,
+  getSelectedCourseLevel,
+  setSelectedCourseLevel,
+  changeAttemptPortionAndSession,
+  applyPersonaToState,
+  getUserPersona,
+  updateCustomStudyHours
 } from './utils/storage';
 import { THEMES } from './utils/theme';
 import { CountdownHeader } from './components/CountdownHeader';
@@ -19,6 +25,10 @@ import { DashboardTodayMission } from './components/DashboardTodayMission';
 import { AddTopicLinkModal } from './components/AddTopicLinkModal';
 import { AIAssistantModal } from './components/AIAssistantModal';
 import { ThemeSelectorModal } from './components/ThemeSelectorModal';
+import { CourseSelectionModal } from './components/CourseSelectionModal';
+import { StudyHoursModal } from './components/StudyHoursModal';
+import { CoursesDirectoryModal } from './components/CoursesDirectoryModal';
+import { AttemptSelectionModal } from './components/AttemptSelectionModal';
 import { GlobalProgressBottomBar } from './components/GlobalProgressBottomBar';
 import { 
   CalendarDays, 
@@ -26,7 +36,7 @@ import {
   BarChart3, 
   Compass, 
   Clock, 
-  AlertTriangle,
+  AlertTriangle, 
   Briefcase,
   ListTodo,
   Layers,
@@ -37,7 +47,13 @@ import {
 export default function App() {
   const [state, setState] = useState<PlannerState>(() => loadPlannerState());
   const [theme, setTheme] = useState<AppTheme>(() => state.theme || 'midnight');
+  const [fontFamily, setFontStyle] = useState<AppFontFamily>(() => state.fontFamily || (state.theme === 'beige' ? 'playfair' : 'jakarta'));
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState<boolean>(() => !getSelectedCourseLevel());
+  const [isStudyHoursModalOpen, setIsStudyHoursModalOpen] = useState(false);
+  const [isAttemptModalOpen, setIsAttemptModalOpen] = useState(false);
+  const [courseFilter, setCourseFilter] = useState<CourseFilterType>('all');
+  const [isCoursesDirectoryOpen, setIsCoursesDirectoryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'scheduler' | 'daily_roadmap' | 'syllabus' | 'analytics' | 'roadmap'>('scheduler');
   const [isBacklogModalOpen, setIsBacklogModalOpen] = useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -52,6 +68,20 @@ export default function App() {
     chapterTitle: string;
     links: TopicLinkReference[];
   } | null>(null);
+
+  const handleSelectAttempt = (newPortion: AttemptPortion, newSession: ExamSession) => {
+    const updated = changeAttemptPortionAndSession(state, newPortion, newSession);
+    setState(updated);
+    const isFnd = updated.courseLevel === 'foundation';
+    const portionLabel =
+      newPortion === 'both'
+        ? (isFnd ? 'Both Modules (4 Papers)' : 'Both Groups (6 Papers)')
+        : newPortion === 'group1'
+        ? (isFnd ? 'Module 1 Only' : 'Group 1 Only')
+        : (isFnd ? 'Module 2 Only' : 'Group 2 Only');
+    const sessionLabel = newSession === 'nov_2027' ? 'Nov 2027' : 'May 2027';
+    showToast(`Roadmap & Schedule updated: ${sessionLabel} • ${portionLabel}`);
+  };
 
   // Auto-save to localStorage whenever state changes
   useEffect(() => {
@@ -149,19 +179,106 @@ export default function App() {
     showToast(`Study hours logged for ${log.date}`);
   };
 
+  const handleSelectCourseLevel = (
+    level: CourseLevel, 
+    persona?: UserPersona,
+    customHours?: {
+      morningFrom: string;
+      morningTo: string;
+      eveningFrom: string;
+      eveningTo: string;
+      breakMinutes: number;
+    }
+  ) => {
+    setSelectedCourseLevel(level);
+    const chosenPersona = persona || state.userPersona || getUserPersona();
+    let loaded = loadPlannerState(level);
+    if (chosenPersona) {
+      loaded = applyPersonaToState(loaded, chosenPersona);
+    }
+    if (customHours) {
+      loaded = updateCustomStudyHours(
+        loaded,
+        customHours.morningFrom,
+        customHours.morningTo,
+        customHours.eveningFrom,
+        customHours.eveningTo,
+        customHours.breakMinutes
+      );
+    }
+    setState(loaded);
+    setIsCourseModalOpen(false);
+    const label =
+      level === 'foundation'
+        ? 'CA Foundation'
+        : level === 'final'
+        ? 'CA Final'
+        : 'CA Intermediate';
+    const personaLabel =
+      chosenPersona === 'student'
+        ? 'Student Schedule'
+        : 'Working Professional';
+    const hoursLabel = loaded.backlogConfig.dailyTargetHours;
+    showToast(`Active: ${label} • ${personaLabel} (${hoursLabel}h/day: ${loaded.morningStartTime || '06:30'}-${loaded.morningEndTime || '08:00'} & ${loaded.eveningStartTime || '20:00'}-${loaded.eveningEndTime || '00:00'})`);
+  };
+
+  const handleSaveStudyHours = (
+    morningFrom: string,
+    morningTo: string,
+    eveningFrom: string,
+    eveningTo: string,
+    eveningBreakMinutes: number
+  ) => {
+    const updated = updateCustomStudyHours(
+      state,
+      morningFrom,
+      morningTo,
+      eveningFrom,
+      eveningTo,
+      eveningBreakMinutes
+    );
+    setState(updated);
+    setIsStudyHoursModalOpen(false);
+    showToast(
+      `Study hours updated: Morning ${morningFrom}-${morningTo} • Evening ${eveningFrom}-${eveningTo} (${updated.backlogConfig.dailyTargetHours}h/day total)`
+    );
+  };
+
+  const handleTogglePersona = (newPersona: UserPersona) => {
+    const updated = applyPersonaToState(state, newPersona);
+    setState(updated);
+    const label =
+      newPersona === 'student'
+        ? 'Student Schedule (8 Hours/Day)'
+        : 'Working Professional Protocol (5 Hours/Day)';
+    showToast(`Study track updated: ${label}`);
+  };
+
   const handleLoadSampleData = () => {
-    if (confirm('Load realistic sample study logs and progress for demo? Current local data will be replaced.')) {
-      const sample = getSampleState();
+    const courseName =
+      state.courseLevel === 'foundation'
+        ? 'CA Foundation'
+        : state.courseLevel === 'final'
+        ? 'CA Final'
+        : 'CA Intermediate';
+    if (confirm(`Load realistic sample study logs and progress for ${courseName}? Current local data will be replaced.`)) {
+      const sample = getSampleState(state.courseLevel);
       setState(sample);
-      showToast('Loaded sample CA Intermediate study progress');
+      showToast(`Loaded sample ${courseName} study progress`);
     }
   };
 
   const handleResetData = () => {
-    if (confirm('Reset all chapters, progress, and study logs to fresh baseline?')) {
-      const fresh = getDefaultState();
+    const courseName =
+      state.courseLevel === 'foundation'
+        ? 'CA Foundation'
+        : state.courseLevel === 'final'
+        ? 'CA Final'
+        : 'CA Intermediate';
+    if (confirm(`Reset all ${courseName} chapters, progress, and study logs to fresh baseline?`)) {
+      const fresh = getDefaultState(state.courseLevel);
       setState(fresh);
-      showToast('Reset to fresh syllabus tracking');
+      showToast(`Reset ${courseName} to fresh syllabus tracking`);
     }
   };
 
@@ -273,11 +390,27 @@ export default function App() {
     showToast('References & lecture links saved');
   };
 
+  const handleSelectFont = (newFont: AppFontFamily) => {
+    setFontStyle(newFont);
+    setState((prev) => ({
+      ...prev,
+      fontFamily: newFont,
+    }));
+    const label = newFont === 'playfair' ? 'Playfair Display' : newFont === 'fraunces' ? 'Fraunces' : 'Plus Jakarta Sans';
+    showToast(`Typography set to ${label}`);
+  };
+
   const handleSelectTheme = (newTheme: AppTheme) => {
     setTheme(newTheme);
+    let updatedFont = fontFamily;
+    if (newTheme === 'beige' && fontFamily === 'jakarta') {
+      updatedFont = 'playfair';
+      setFontStyle('playfair');
+    }
     setState((prev) => ({
       ...prev,
       theme: newTheme,
+      fontFamily: updatedFont,
     }));
     showToast(`Theme switched to ${THEMES[newTheme]?.name || newTheme}`);
   };
@@ -313,9 +446,14 @@ export default function App() {
     });
   };
 
-
   return (
-    <div className={`min-h-screen ${THEMES[theme]?.containerClass || 'bg-slate-950 text-slate-100'} flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-14 transition-colors duration-300`}>
+    <div
+      data-theme={theme}
+      data-font={fontFamily}
+      className={`min-h-screen ${THEMES[theme]?.containerClass || 'bg-slate-950 text-slate-100'} ${
+        fontFamily === 'playfair' ? 'font-playfair' : fontFamily === 'fraunces' ? 'font-fraunces' : 'font-jakarta'
+      } flex flex-col pb-14 transition-colors duration-300`}
+    >
       {/* Toast Notification (Suppressed during Deep Work Session) */}
       {!isDeepWorkActive && toastMessage && (
         <div className="fixed bottom-22 right-6 z-50 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-xl border border-indigo-400/30 text-xs font-semibold flex items-center gap-2 animate-in slide-in-from-bottom-5">
@@ -326,6 +464,14 @@ export default function App() {
       {/* Primary Countdown & Capacity Engine Header */}
       <CountdownHeader
         state={state}
+        courseFilter={courseFilter}
+        onSelectCourseFilter={setCourseFilter}
+        onOpenCoursesDirectory={() => setIsCoursesDirectoryOpen(true)}
+        onOpenCourseModal={() => setIsCourseModalOpen(true)}
+        onTogglePersona={handleTogglePersona}
+        onOpenStudyHoursModal={() => setIsStudyHoursModalOpen(true)}
+        onSelectAttempt={handleSelectAttempt}
+        onOpenAttemptModal={() => setIsAttemptModalOpen(true)}
         onOpenBacklogModal={() => setIsBacklogModalOpen(true)}
         onOpenLogModal={() => handleOpenLogModal()}
         onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
@@ -455,6 +601,7 @@ export default function App() {
         {activeTab === 'daily_roadmap' && (
           <DailyTopicRoadmap
             state={state}
+            globalCourseFilter={courseFilter}
             onUpdateTopicSpentMinutes={handleUpdateTopicSpentMinutes}
             onToggleTopicCompleted={handleToggleTopicCompleted}
             onToggleSubtopic={handleToggleSubtopic}
@@ -498,6 +645,9 @@ export default function App() {
         chapters={state.chapters}
         onSaveLog={handleSaveLog}
         onTriggerBacklog={() => setIsBacklogModalOpen(true)}
+        dailyTargetHours={state.backlogConfig.dailyTargetHours}
+        morningSlotHours={state.backlogConfig.morningSlotHours}
+        eveningSlotHours={state.backlogConfig.eveningSlotHours}
       />
 
       {/* Global Add / Edit Topic Link Reference Modal */}
@@ -559,12 +709,54 @@ export default function App() {
         </button>
       )}
 
+      {/* Course Stream Selection Modal (CA Foundation vs CA Inter vs CA Final) */}
+      <CourseSelectionModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+        currentLevel={state.courseLevel}
+        currentPersona={state.userPersona || 'working_professional'}
+        morningStartTime={state.morningStartTime}
+        morningEndTime={state.morningEndTime}
+        eveningStartTime={state.eveningStartTime}
+        eveningEndTime={state.eveningEndTime}
+        eveningBreakMinutes={state.eveningBreakMinutes}
+        onSelectLevel={handleSelectCourseLevel}
+      />
+
+      {/* Dedicated Study Hours Modal (Morning From-To & Evening From-To) */}
+      <StudyHoursModal
+        isOpen={isStudyHoursModalOpen}
+        onClose={() => setIsStudyHoursModalOpen(false)}
+        state={state}
+        onSaveHours={handleSaveStudyHours}
+      />
+
+      {/* Attempt & Portion Selection Modal */}
+      <AttemptSelectionModal
+        isOpen={isAttemptModalOpen}
+        onClose={() => setIsAttemptModalOpen(false)}
+        courseLevel={state.courseLevel}
+        currentPortion={state.attemptPortion || 'both'}
+        currentSession={state.examSession || 'may_2027'}
+        onConfirm={handleSelectAttempt}
+      />
+
+      {/* Curated Courses Directory Modal (Free & Paid Courses) */}
+      <CoursesDirectoryModal
+        isOpen={isCoursesDirectoryOpen}
+        onClose={() => setIsCoursesDirectoryOpen(false)}
+        currentLevel={state.courseLevel}
+        initialFilter={courseFilter}
+      />
+
       {/* Theme Selector Modal */}
       <ThemeSelectorModal
         isOpen={isThemeModalOpen}
         onClose={() => setIsThemeModalOpen(false)}
         currentTheme={theme}
         onSelectTheme={handleSelectTheme}
+        currentFont={fontFamily}
+        onSelectFont={handleSelectFont}
       />
 
       {/* Persistent Global Progress & Status Dock (Bottom Percentage & Theme Selection) */}
@@ -579,7 +771,12 @@ export default function App() {
       <footer className="border-t border-slate-900 bg-slate-950/80 py-4 px-4 pb-14 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
-            CA Intermediate May 2027 Study Planner & Tracker • Tailored for Working Professionals (5h/day)
+            {state.courseLevel === 'foundation'
+              ? 'CA Foundation'
+              : state.courseLevel === 'final'
+              ? 'CA Final'
+              : 'CA Intermediate'}{' '}
+            May 2027 Study Planner & Tracker • Tailored for Working Students (5h/day)
           </span>
           <span className="font-mono text-slate-400">
             Day 1: Oct 26, 2026 • Exam Date: May 1, 2027 • ICAI New Scheme

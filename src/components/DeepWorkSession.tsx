@@ -30,6 +30,7 @@ interface DeepWorkSessionProps {
   isOpen: boolean;
   onClose: (elapsedMinutes: number, slot: 'morning' | 'evening') => void;
   slot: 'morning' | 'evening';
+  targetMinutes?: number;
   chapter: Chapter;
   paper?: Paper;
   onUpdateChapterMilestone: (chapterId: string, milestoneKey: keyof Chapter['milestones'], value: any) => void;
@@ -38,25 +39,25 @@ interface DeepWorkSessionProps {
 
 const CA_QUOTES = [
   "The 'CA' prefix before your name isn't bought. It's earned one deep session at a time.",
-  "Morning 1.5h Theory (06:30 - 08:00 AM) locks in legal sections before the office rush.",
-  "Evening 3.5h Practical Grind (08:00 - 12:00 AM) builds mathematical speed and stamina.",
-  "Your full-time competitors study 10 hours casually. Your edge is unbroken 5-hour razor focus.",
-  "Every ICAI illustration solved tonight is 4 to 8 marks secured in May 2027.",
-  "Protect these study blocks with your life. The office emails can wait.",
-  "Strict adherence to your 5-hour daily protocol beats exam-month panic every single time."
+  "Morning Theory locks in legal sections and core conceptual foundations.",
+  "Evening Practical Grind builds calculation speed, working note mastery, and stamina.",
+  "Your full-time competitors study casually. Your edge is unbroken razor focus.",
+  "Every ICAI illustration solved tonight is 4 to 8 marks secured in the exam hall.",
+  "Protect these study blocks with your life. Distractions can wait.",
+  "Strict adherence to your daily study protocol beats exam-month panic every single time."
 ];
 
 export const DeepWorkSession: React.FC<DeepWorkSessionProps> = ({
   isOpen,
   onClose,
   slot,
+  targetMinutes,
   chapter,
   paper,
   onUpdateChapterMilestone,
   onUpdateChapterNotes,
 }) => {
-  // Morning: 1.5h = 90 mins = 5400s; Evening: 3.5h = 210 mins = 12600s
-  const INITIAL_DURATION = slot === 'morning' ? 90 * 60 : 210 * 60;
+  const INITIAL_DURATION = targetMinutes ? targetMinutes * 60 : (slot === 'morning' ? 90 * 60 : 210 * 60);
   const [timeLeft, setTimeLeft] = useState<number>(INITIAL_DURATION);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const [quoteIndex, setQuoteIndex] = useState<number>(0);

@@ -105,8 +105,13 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
     }
   };
 
+  const isStudent = state.userPersona === 'student';
+
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-900/95 to-indigo-950/30 border border-indigo-500/30 rounded-2xl p-5 shadow-xl my-6 relative overflow-hidden">
+    <div 
+      data-focus-section="today-mission"
+      className="bg-gradient-to-br from-slate-900 via-slate-900/95 to-indigo-950/30 border border-indigo-500/30 rounded-2xl p-5 shadow-xl my-6 relative overflow-hidden"
+    >
       {/* Background Glow */}
       <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -119,7 +124,7 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                Today's 5-Hour Study Mission
+                {isStudent ? "Today's 8-Hour Study Mission" : "Today's 5-Hour Study Mission"}
               </h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
                 Day {plan.dayNumber} of 191
@@ -127,13 +132,20 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
                 {plan.phase}
               </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                isStudent
+                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+              }`}>
+                {isStudent ? '8h/day Student Track' : '5h/day Working Pro'}
+              </span>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
               <span>Wake Up: <strong className="text-amber-300">06:00 AM</strong></span>
               <span>•</span>
-              <span>Morning: <strong className="text-slate-200">06:30 - 08:00 (1.5h)</strong></span>
+              <span>Morning: <strong className="text-slate-200">{state.morningSlotTime}</strong></span>
               <span>•</span>
-              <span>Evening: <strong className="text-slate-200">20:00 - 00:00 (3.5h)</strong></span>
+              <span>Evening: <strong className="text-slate-200">{state.eveningSlotTime}</strong></span>
             </p>
           </div>
         </div>
@@ -186,55 +198,97 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
       <div className="mt-4 bg-slate-950/80 rounded-xl p-3 border border-slate-800/90">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-indigo-400" /> Working Professional Daily Schedule Breakdown
+            <Clock className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{isStudent ? 'Full-Time Student Routine & Study Schedule' : 'Working Professional Daily Schedule Breakdown'}</span>
           </span>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">
-            Rigid 5.0h Total Study
+          <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
+            isStudent 
+              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+              : 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+          }`}>
+            {isStudent ? 'Target 8.0h Total Study' : 'Rigid 5.0h Total Study'}
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-          <div className="bg-slate-900/90 rounded-lg p-2 border border-amber-500/20">
-            <span className="text-[10px] text-amber-400 font-bold block">06:00 - 06:30 AM</span>
-            <span className="font-semibold text-white text-[11px] block mt-0.5">⏰ Wake Up (30m)</span>
-            <span className="text-[9px] text-slate-400">Hydration & Cold Splash</span>
-          </div>
+        
+        {isStudent ? (
+          /* Student 8-Hour Daily Schedule */
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+              <span className="text-[10px] text-slate-400 font-bold block">06:00 - 07:00 AM</span>
+              <span className="font-semibold text-white text-[11px] block mt-0.5">⏰ Wake & Routine (1h)</span>
+              <span className="text-[9px] text-slate-400">Exercise & Breakfast</span>
+            </div>
 
-          <div className="bg-slate-900/90 rounded-lg p-2 border border-amber-500/40 ring-1 ring-amber-500/30">
-            <span className="text-[10px] text-amber-300 font-bold block">06:30 - 08:00 AM</span>
-            <span className="font-bold text-amber-300 text-[11px] block mt-0.5">⚡ Session 1 (1.5h)</span>
-            <span className="text-[9px] text-slate-300">Morning Theory & Law</span>
-          </div>
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-emerald-500/40 ring-1 ring-emerald-500/30">
+              <span className="text-[10px] text-emerald-300 font-bold block">07:00 - 11:00 AM</span>
+              <span className="font-bold text-emerald-300 text-[11px] block mt-0.5">⚡ Session 1 (4.0h)</span>
+              <span className="text-[9px] text-slate-300">Morning Deep Work Theory</span>
+            </div>
 
-          <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
-            <span className="text-[10px] text-slate-400 font-bold block">08:00 AM - 08:00 PM</span>
-            <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">💼 Workday (12h)</span>
-            <span className="text-[9px] text-slate-400">Job, Commute & Dinner</span>
-          </div>
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+              <span className="text-[10px] text-slate-400 font-bold block">11:00 AM - 04:30 PM</span>
+              <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">🥗 Lunch & Rest (5.5h)</span>
+              <span className="text-[9px] text-slate-400">Meal, Power Nap & Light Rev</span>
+            </div>
 
-          <div className="bg-slate-900/90 rounded-lg p-2 border border-blue-500/40 ring-1 ring-blue-500/30">
-            <span className="text-[10px] text-blue-300 font-bold block">08:00 - 12:00 AM</span>
-            <span className="font-bold text-blue-300 text-[11px] block mt-0.5">🌙 Session 2 (3.5h)</span>
-            <span className="text-[9px] text-slate-300">Practical & 30m break</span>
-          </div>
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-blue-500/40 ring-1 ring-blue-500/30">
+              <span className="text-[10px] text-blue-300 font-bold block">04:30 - 08:30 PM</span>
+              <span className="font-bold text-blue-300 text-[11px] block mt-0.5">🌙 Session 2 (4.0h)</span>
+              <span className="text-[9px] text-slate-300">Practical & Problem Solving</span>
+            </div>
 
-          <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-slate-400 font-bold block">12:00 - 06:00 AM</span>
-            <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">😴 Sleep (6.0h)</span>
-            <span className="text-[9px] text-slate-400">Consistent Circadian Rest</span>
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800 col-span-2 sm:col-span-1">
+              <span className="text-[10px] text-slate-400 font-bold block">08:30 - 11:00 PM</span>
+              <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">😴 Dinner & Rest (2.5h)</span>
+              <span className="text-[9px] text-slate-400">Dinner & 7.5h Circadian Sleep</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Working Professional 5-Hour Daily Schedule */
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-amber-500/20">
+              <span className="text-[10px] text-amber-400 font-bold block">06:00 - 06:30 AM</span>
+              <span className="font-semibold text-white text-[11px] block mt-0.5">⏰ Wake Up (30m)</span>
+              <span className="text-[9px] text-slate-400">Hydration & Cold Splash</span>
+            </div>
+
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-amber-500/40 ring-1 ring-amber-500/30">
+              <span className="text-[10px] text-amber-300 font-bold block">06:30 - 08:00 AM</span>
+              <span className="font-bold text-amber-300 text-[11px] block mt-0.5">⚡ Session 1 (1.5h)</span>
+              <span className="text-[9px] text-slate-300">Morning Theory & Law</span>
+            </div>
+
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+              <span className="text-[10px] text-slate-400 font-bold block">08:00 AM - 08:00 PM</span>
+              <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">💼 Workday (12h)</span>
+              <span className="text-[9px] text-slate-400">Job, Commute & Dinner</span>
+            </div>
+
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-blue-500/40 ring-1 ring-blue-500/30">
+              <span className="text-[10px] text-blue-300 font-bold block">08:00 - 12:00 AM</span>
+              <span className="font-bold text-blue-300 text-[11px] block mt-0.5">🌙 Session 2 (3.5h)</span>
+              <span className="text-[9px] text-slate-300">Practical & 30m break</span>
+            </div>
+
+            <div className="bg-slate-900/90 rounded-lg p-2 border border-slate-800 col-span-2 sm:col-span-1">
+              <span className="text-[10px] text-slate-400 font-bold block">12:00 - 06:00 AM</span>
+              <span className="font-semibold text-slate-300 text-[11px] block mt-0.5">😴 Sleep (6.0h)</span>
+              <span className="text-[9px] text-slate-400">Consistent Circadian Rest</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2-Slot Practical Cards (Directly on Dashboard) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-        {/* Morning Slot: 1.5h Theory / Law */}
+        {/* Morning Slot Card */}
         <div className="bg-slate-950/80 border border-amber-500/20 rounded-xl p-4 flex flex-col justify-between">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
               <div className="flex items-center gap-2 text-amber-400">
                 <Sun className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Morning Theory (1.5h • 06:30 - 08:00)
+                  {isStudent ? 'Morning Focus (4.0h • 07:00 - 11:00)' : 'Morning Theory (1.5h • 06:30 - 08:00)'}
                 </span>
               </div>
               <span className="text-[11px] font-semibold text-slate-400">
@@ -478,7 +532,7 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
                 className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
                 title="Lock into full-screen distraction-free timer"
               >
-                <Zap className="w-3 h-3" /> Lock 1.5h
+                <Zap className="w-3 h-3" /> Lock {isStudent ? '4.0h' : '1.5h'}
               </button>
 
               <button
@@ -496,14 +550,14 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
           </div>
         </div>
 
-        {/* Evening Slot: 3.5h Practical / Numerical */}
+        {/* Evening Slot Card */}
         <div className="bg-slate-950/80 border border-blue-500/20 rounded-xl p-4 flex flex-col justify-between">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
               <div className="flex items-center gap-2 text-blue-400">
                 <Moon className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Evening Practical (3.5h • 20:00 - 00:00)
+                  {isStudent ? 'Evening Focus (4.0h • 16:30 - 20:30)' : 'Evening Practical (3.5h • 20:00 - 00:00)'}
                 </span>
               </div>
               <span className="text-[11px] font-semibold text-slate-400">
@@ -747,7 +801,7 @@ export const DashboardTodayMission: React.FC<DashboardTodayMissionProps> = ({
                 className="px-2.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
                 title="Lock into full-screen distraction-free timer"
               >
-                <Zap className="w-3 h-3" /> Lock 3.5h
+                <Zap className="w-3 h-3" /> Lock {isStudent ? '4.0h' : '3.5h'}
               </button>
 
               <button

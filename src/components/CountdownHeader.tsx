@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getExamCountdown, calculateCapacityMetrics, CountdownStats, CapacityMetrics } from '../utils/backlogEngine';
-import { PlannerState } from '../types/ca-study';
+import { PlannerState, CourseFilterType, AttemptPortion, ExamSession, UserPersona } from '../types/ca-study';
+import { CoursesDropdown } from './CoursesDropdown';
+import { AttemptDropdown } from './AttemptDropdown';
 import { 
   Calendar, 
   Clock, 
@@ -14,12 +16,27 @@ import {
   Download,
   Upload,
   Bot,
-  Palette
+  Palette,
+  ChevronDown,
+  GraduationCap,
+  Layers,
+  Target,
+  Sliders,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { exportStateAsJSON } from '../utils/storage';
 
 interface CountdownHeaderProps {
   state: PlannerState;
+  courseFilter: CourseFilterType;
+  onSelectCourseFilter: (filter: CourseFilterType) => void;
+  onOpenCoursesDirectory: () => void;
+  onOpenCourseModal: () => void;
+  onTogglePersona?: (persona: UserPersona) => void;
+  onOpenStudyHoursModal?: () => void;
+  onSelectAttempt: (portion: AttemptPortion, session: ExamSession) => void;
+  onOpenAttemptModal: () => void;
   onOpenBacklogModal: () => void;
   onOpenLogModal: () => void;
   onOpenAIAssistant: () => void;
@@ -31,6 +48,14 @@ interface CountdownHeaderProps {
 
 export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
   state,
+  courseFilter,
+  onSelectCourseFilter,
+  onOpenCoursesDirectory,
+  onOpenCourseModal,
+  onTogglePersona,
+  onOpenStudyHoursModal,
+  onSelectAttempt,
+  onOpenAttemptModal,
   onOpenBacklogModal,
   onOpenLogModal,
   onOpenAIAssistant,
@@ -41,7 +66,13 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
 }) => {
   const [countdown, setCountdown] = useState<CountdownStats>(() => getExamCountdown(state.examDate));
   const [capacity, setCapacity] = useState<CapacityMetrics>(() =>
-    calculateCapacityMetrics(state.chapters, state.studyLogs, state.examDate, state.backlogConfig.dailyTargetHours)
+    calculateCapacityMetrics(
+      state.chapters,
+      state.studyLogs,
+      state.examDate,
+      state.backlogConfig.dailyTargetHours,
+      state.attemptPortion || 'both'
+    )
   );
 
   useEffect(() => {
@@ -57,10 +88,11 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
         state.chapters,
         state.studyLogs,
         state.examDate,
-        state.backlogConfig.dailyTargetHours
+        state.backlogConfig.dailyTargetHours,
+        state.attemptPortion || 'both'
       )
     );
-  }, [state.chapters, state.studyLogs, state.examDate, state.backlogConfig.dailyTargetHours]);
+  }, [state.chapters, state.studyLogs, state.examDate, state.backlogConfig.dailyTargetHours, state.attemptPortion]);
 
   const allPlans = Object.values(state.dailyPlans || {});
   const totalTopics = allPlans.length * 2;
@@ -92,6 +124,15 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
     reader.readAsText(file);
   };
 
+  const isStudent = state.userPersona === 'student';
+  const morningStart = state.morningStartTime || (isStudent ? '07:00' : '06:30');
+  const morningEnd = state.morningEndTime || (isStudent ? '11:00' : '08:00');
+  const eveningStart = state.eveningStartTime || (isStudent ? '16:30' : '20:00');
+  const eveningEnd = state.eveningEndTime || (isStudent ? '20:30' : '00:00');
+  const morningHours = state.backlogConfig.morningSlotHours ?? (isStudent ? 4.0 : 1.5);
+  const eveningHours = state.backlogConfig.eveningSlotHours ?? (isStudent ? 4.0 : 3.5);
+  const dailyTargetHours = state.backlogConfig.dailyTargetHours ?? (isStudent ? 8.0 : 5.0);
+
   return (
     <header className="relative bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border-b border-slate-800/80 pb-6 pt-5 px-4 sm:px-6 lg:px-8">
       {/* Top Banner Row */}
@@ -101,25 +142,174 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
             CA
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                CA Intermediate May 2027
+                {state.courseLevel === 'foundation'
+                  ? `CA Foundation ${state.examSession === 'nov_2027' ? 'Nov 2027' : 'May 2027'}`
+                  : state.courseLevel === 'final'
+                  ? `CA Final ${state.examSession === 'nov_2027' ? 'Nov 2027' : 'May 2027'}`
+                  : `CA Intermediate ${state.examSession === 'nov_2027' ? 'Nov 2027' : 'May 2027'}`}
               </h1>
+
+              {/* Course Switcher Trigger Pill */}
+              <button
+                onClick={onOpenCourseModal}
+                data-dropdown-trigger="course-level"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Switch curriculum between CA Foundation, CA Intermediate, and CA Final"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-indigo-400" />
+                <span>
+                  {state.courseLevel === 'foundation'
+                    ? 'CA Foundation'
+                    : state.courseLevel === 'final'
+                    ? 'CA Final'
+                    : 'CA Inter'}
+                </span>
+                <ChevronDown className="w-3 h-3 text-indigo-300" />
+              </button>
+
+              {/* Student (8h) vs Working Professional (5h) Switcher Pill */}
+              <button
+                onClick={() => {
+                  if (onTogglePersona) {
+                    onTogglePersona(isStudent ? 'working_professional' : 'student');
+                  } else {
+                    onOpenCourseModal();
+                  }
+                }}
+                data-dropdown-trigger="user-persona"
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 border ${
+                  isStudent
+                    ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/40'
+                    : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
+                }`}
+                title="Click to toggle between Student (8 Hours) and Working Professional (5 Hours)"
+              >
+                {isStudent ? (
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+                )}
+                <span>{isStudent ? 'Students (8h/day)' : 'Working Pro (5h/day)'}</span>
+                <span className="text-[10px] opacity-70">⚙</span>
+              </button>
+
+              {/* Study Hours Configuration Pill (Morning From-To & Evening From-To) */}
+              {onOpenStudyHoursModal && (
+                <button
+                  onClick={onOpenStudyHoursModal}
+                  data-dropdown-trigger="study-hours"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 border bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border-sky-500/40"
+                  title="Configure Morning (From-To) & Evening (From-To) Study Hours"
+                >
+                  <Clock className="w-3.5 h-3.5 text-sky-400" />
+                  <span>
+                    {dailyTargetHours}h/day: M({morningStart}-{morningEnd}) • E({eveningStart}-{eveningEnd})
+                  </span>
+                  <Sliders className="w-3 h-3 text-sky-300 opacity-80" />
+                </button>
+              )}
+
+              {/* Active Portion Pill Button */}
+              <button
+                onClick={onOpenAttemptModal}
+                data-dropdown-trigger="active-portion"
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 border ${
+                  state.attemptPortion === 'both'
+                    ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border-purple-500/40'
+                    : state.attemptPortion === 'group1'
+                    ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border-blue-500/40'
+                    : 'bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border-indigo-500/40'
+                }`}
+                title="Click to configure Target Attempt & Portion"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>
+                  {state.attemptPortion === 'group1'
+                    ? (state.courseLevel === 'foundation' ? 'Module 1 Only' : 'Group 1 Only')
+                    : state.attemptPortion === 'group2'
+                    ? (state.courseLevel === 'foundation' ? 'Module 2 Only' : 'Group 2 Only')
+                    : (state.courseLevel === 'foundation' ? 'Both Modules (4 Papers)' : 'Both Groups (6 Papers)')}
+                </span>
+                <span className="text-[10px] opacity-70">⚙</span>
+              </button>
+
               <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                 Day 1: 26-Oct-26
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 mt-0.5 flex-wrap">
-              <Briefcase className="w-3.5 h-3.5 text-amber-400" />
-              <span>Rigid 5-Hour Protocol for Working Professionals</span>
-              <span className="text-slate-600">•</span>
-              <span className="text-slate-300 font-medium">1.5h Morning (06:30-08:00) + 3.5h Evening (20:00-00:00)</span>
-            </p>
+            
+            {/* Dynamic Profile Subtitle with Morning & Evening Hours */}
+            <div 
+              onClick={onOpenStudyHoursModal}
+              className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 mt-0.5 flex-wrap cursor-pointer group hover:text-slate-200 transition-colors"
+              title="Click to customize Morning and Evening study hours"
+            >
+              {isStudent ? (
+                <>
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Dedicated Student Schedule</span>
+                </>
+              ) : (
+                <>
+                  <Briefcase className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>Working Professional Protocol</span>
+                </>
+              )}
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="text-slate-300 font-medium group-hover:text-sky-300 transition-colors flex items-center gap-1.5 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-amber-300">
+                  <Sun className="w-3 h-3 inline" />
+                  <span>Morning {morningStart}-{morningEnd} ({morningHours}h)</span>
+                </span>
+                <span className="text-slate-600">+</span>
+                <span className="inline-flex items-center gap-1 text-indigo-300">
+                  <Moon className="w-3 h-3 inline" />
+                  <span>Evening {eveningStart}-{eveningEnd} ({eveningHours}h)</span>
+                </span>
+                <span className="text-slate-400 font-semibold bg-slate-800/80 px-1.5 py-0.5 rounded text-[11px]">
+                  {dailyTargetHours}h/day Total
+                </span>
+                <span className="text-[10px] text-sky-400 opacity-80 group-hover:opacity-100 underline decoration-dotted">
+                  Change Hours
+                </span>
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Global Action Controls */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Study Hours Quick Action Button */}
+          {onOpenStudyHoursModal && (
+            <button
+              onClick={onOpenStudyHoursModal}
+              className="px-3 py-1.5 rounded-lg bg-sky-950/40 hover:bg-sky-900/50 text-sky-200 border border-sky-600/40 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+              title="Configure Study Hours (Morning From-To & Evening From-To)"
+            >
+              <Sliders className="w-3.5 h-3.5 text-sky-400" />
+              <span>Study Hours</span>
+            </button>
+          )}
+
+          {/* Quick Attempt & Portion Dropdown */}
+          <AttemptDropdown
+            courseLevel={state.courseLevel}
+            attemptPortion={state.attemptPortion || 'both'}
+            examSession={state.examSession || 'may_2027'}
+            onSelectAttempt={onSelectAttempt}
+            onOpenDetailedModal={onOpenAttemptModal}
+          />
+
+          {/* Free & Paid Courses Dropdown */}
+          <CoursesDropdown
+            currentFilter={courseFilter}
+            onSelectFilter={onSelectCourseFilter}
+            onOpenDirectoryModal={onOpenCoursesDirectory}
+            currentLevel={state.courseLevel}
+          />
+
           <button
             onClick={onOpenAIAssistant}
             className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 border border-indigo-400/30"
@@ -194,7 +384,10 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
       </div>
 
       {/* Top Completion Status Bar (Percentage Meter) */}
-      <div className="max-w-7xl mx-auto mt-4 bg-slate-950/80 border border-indigo-500/25 rounded-2xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
+      <div 
+        data-focus-section="completion-status"
+        className="max-w-7xl mx-auto mt-4 bg-slate-950/80 border border-indigo-500/25 rounded-2xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg"
+      >
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
             <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
@@ -243,7 +436,10 @@ export const CountdownHeader: React.FC<CountdownHeaderProps> = ({
       {/* Countdown & Capacity Engine Dashboard Cards */}
       <div className="max-w-7xl mx-auto mt-5 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Countdown Box */}
-        <div className="col-span-2 bg-gradient-to-br from-indigo-950/60 to-slate-900/90 rounded-2xl p-4 border border-indigo-500/20 shadow-lg relative overflow-hidden">
+        <div 
+          data-focus-section="countdown-box"
+          className="col-span-2 bg-gradient-to-br from-indigo-950/60 to-slate-900/90 rounded-2xl p-4 border border-indigo-500/20 shadow-lg relative overflow-hidden"
+        >
           <div className="flex items-center justify-between text-xs font-medium text-indigo-300">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-indigo-400" />

@@ -93,15 +93,21 @@ export function getExamCountdown(targetDateStr: string = '2027-05-01'): Countdow
 }
 
 /**
- * Calculates syllabus capacity and velocity metrics
+ * Calculates syllabus capacity and velocity metrics based on attempt portion (Both Groups, Group 1 Only, or Group 2 Only)
  */
 export function calculateCapacityMetrics(
   chapters: Record<string, Chapter>,
   studyLogs: Record<string, StudyLogEntry>,
   examDateStr: string = '2027-05-01',
-  baselineDaily: number = 5
+  baselineDaily: number = 5,
+  portion: 'both' | 'group1' | 'group2' = 'both'
 ): CapacityMetrics {
-  const chapterList = Object.values(chapters);
+  const allChapters = Object.values(chapters);
+  const chapterList = allChapters.filter((ch) => {
+    if (portion === 'group1') return ch.group === 1;
+    if (portion === 'group2') return ch.group === 2;
+    return true;
+  });
   const totalSyllabusHours = chapterList.reduce((acc, ch) => acc + ch.estimatedHours, 0);
 
   // Hours completed calculated from study logs

@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Chapter, ChapterCategory, Paper, PaperGroup, PlannerState } from '../types/ca-study';
 import { ICAI_PAPERS } from '../data/icaiSyllabus';
+import { CA_FINAL_PAPERS } from '../data/icaiFinalSyllabus';
+import { CA_FOUNDATION_PAPERS } from '../data/icaiFoundationSyllabus';
 import { 
   Search, 
   Filter, 
@@ -16,7 +18,8 @@ import {
   ChevronDown,
   ExternalLink,
   Youtube,
-  ShoppingBag
+  ShoppingBag,
+  Compass
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { playChime } from '../utils/audio';
@@ -111,24 +114,85 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
     }
   };
 
+  const activePapers = useMemo(() => {
+    if (state.courseLevel === 'foundation') return CA_FOUNDATION_PAPERS;
+    if (state.courseLevel === 'final') return CA_FINAL_PAPERS;
+    return ICAI_PAPERS;
+  }, [state.courseLevel]);
+
+  const courseTitle =
+    state.courseLevel === 'foundation'
+      ? 'CA Foundation'
+      : state.courseLevel === 'final'
+      ? 'CA Final'
+      : 'CA Inter';
+
+  const g1Subtitle =
+    state.courseLevel === 'foundation'
+      ? 'P1: Accounting & P2: Business Laws'
+      : state.courseLevel === 'final'
+      ? 'FR (Ind AS), AFM, Adv Audit & Ethics'
+      : 'Adv Accounting, Law, Tax';
+
+  const g2Subtitle =
+    state.courseLevel === 'foundation'
+      ? 'P3: Quantitative Aptitude & P4: Economics'
+      : state.courseLevel === 'final'
+      ? 'Direct Tax, IDT (GST/Customs), IBS'
+      : 'Costing, Audit, FM/SM';
+
+  const g1Label = state.courseLevel === 'foundation' ? 'Module 1 (P1, P2)' : 'Group 1 (P1, P2, P3)';
+  const g2Label = state.courseLevel === 'foundation' ? 'Module 2 (P3, P4)' : 'Group 2 (P4, P5, P6)';
+
+  const isGroup1Active = state.attemptPortion === 'both' || state.attemptPortion === 'group1';
+  const isGroup2Active = state.attemptPortion === 'both' || state.attemptPortion === 'group2';
+
+  const overallReadinessPct =
+    state.attemptPortion === 'group1'
+      ? getGroupCompletionPct(g1Chapters)
+      : state.attemptPortion === 'group2'
+      ? getGroupCompletionPct(g2Chapters)
+      : Math.round((getGroupCompletionPct(g1Chapters) + getGroupCompletionPct(g2Chapters)) / 2);
+
+  const overallLabel =
+    state.attemptPortion === 'group1'
+      ? (state.courseLevel === 'foundation' ? 'Module 1 Target Readiness' : 'Group 1 Target Readiness')
+      : state.attemptPortion === 'group2'
+      ? (state.courseLevel === 'foundation' ? 'Module 2 Target Readiness' : 'Group 2 Target Readiness')
+      : (state.courseLevel === 'foundation' ? 'All 4 Papers Overall' : 'Both Groups Overall');
+
+  const activePapersCount =
+    state.attemptPortion === 'group1' || state.attemptPortion === 'group2'
+      ? (state.courseLevel === 'foundation' ? 2 : 3)
+      : activePapers.length;
+
   return (
     <div className="space-y-6">
       {/* Group Progress Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Overall CA Inter Progress */}
+        {/* Overall Progress */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 font-medium">Both Groups Overall</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-400 font-medium">{overallLabel}</span>
+              {state.attemptPortion !== 'both' && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  Targeted
+                </span>
+              )}
+            </div>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-2xl font-black font-mono text-white">
-                {Math.round((getGroupCompletionPct(g1Chapters) + getGroupCompletionPct(g2Chapters)) / 2)}%
+                {overallReadinessPct}%
               </span>
               <span className="text-xs text-slate-400">Readiness</span>
             </div>
-            <span className="text-[11px] text-slate-500">6 Papers • {chapters.length} Total Chapters</span>
+            <span className="text-[11px] text-slate-500">
+              {courseTitle} • {activePapersCount} Active Papers • {state.attemptPortion === 'both' ? 'Both Groups' : state.attemptPortion === 'group1' ? 'Group 1' : 'Group 2'}
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-            <GraduationCap className="w-6 h-6" />
+            {state.courseLevel === 'foundation' ? <Compass className="w-6 h-6" /> : <GraduationCap className="w-6 h-6" />}
           </div>
         </div>
 
@@ -143,13 +207,24 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-indigo-400">Group 1 (P1, P2, P3)</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-indigo-400">{g1Label}</span>
+              {!isGroup1Active && (
+                <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-500 border border-slate-700">
+                  Not in Attempt
+                </span>
+              )}
+            </div>
             <span className="text-xs font-mono font-bold text-white">{getGroupCompletionPct(g1Chapters)}%</span>
           </div>
-          <p className="text-xs text-slate-300 font-medium mt-1">Adv Accounting, Law, Tax</p>
+          <p className="text-xs text-slate-300 font-medium mt-1 truncate" title={g1Subtitle}>{g1Subtitle}</p>
           <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full transition-all duration-300"
+              className={`h-full rounded-full transition-all duration-300 ${
+                isGroup1Active
+                  ? 'bg-gradient-to-r from-indigo-500 to-blue-500'
+                  : 'bg-slate-600 opacity-60'
+              }`}
               style={{ width: `${getGroupCompletionPct(g1Chapters)}%` }}
             />
           </div>
@@ -166,13 +241,24 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-indigo-400">Group 2 (P4, P5, P6)</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-indigo-400">{g2Label}</span>
+              {!isGroup2Active && (
+                <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-500 border border-slate-700">
+                  Not in Attempt
+                </span>
+              )}
+            </div>
             <span className="text-xs font-mono font-bold text-white">{getGroupCompletionPct(g2Chapters)}%</span>
           </div>
-          <p className="text-xs text-slate-300 font-medium mt-1">Costing, Audit, FM/SM</p>
+          <p className="text-xs text-slate-300 font-medium mt-1 truncate" title={g2Subtitle}>{g2Subtitle}</p>
           <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-300"
+              className={`h-full rounded-full transition-all duration-300 ${
+                isGroup2Active
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500'
+                  : 'bg-slate-600 opacity-60'
+              }`}
               style={{ width: `${getGroupCompletionPct(g2Chapters)}%` }}
             />
           </div>
@@ -188,16 +274,18 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
               setSelectedGroup('all');
               setSelectedPaperId('all');
             }}
+            data-selection-button="paper-pill"
+            data-selected={selectedPaperId === 'all' && selectedGroup === 'all'}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-pointer transition-all ${
               selectedPaperId === 'all' && selectedGroup === 'all'
-                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30 is-selected'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
             }`}
           >
-            All 6 Papers
+            All {activePapers.length} Papers
           </button>
 
-          {ICAI_PAPERS.map((paper) => {
+          {activePapers.map((paper) => {
             const isSelected = selectedPaperId === paper.id;
             const progress = getPaperProgress(paper.id);
             return (
@@ -207,9 +295,11 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
                   setSelectedPaperId(paper.id);
                   setSelectedGroup(paper.group);
                 }}
+                data-selection-button="paper-pill"
+                data-selected={isSelected}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2 cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30 is-selected'
                     : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
                 }`}
               >
@@ -246,9 +336,11 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
+                  data-selection-button="abc-filter"
+                  data-selected={categoryFilter === cat}
                   className={`px-2.5 py-0.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     categoryFilter === cat
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-600 text-white is-selected'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -271,7 +363,7 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
 
         <div className="grid grid-cols-1 gap-3">
           {filteredChapters.map((ch) => {
-            const paper = ICAI_PAPERS.find((p) => p.id === ch.paperId);
+            const paper = activePapers.find((p) => p.id === ch.paperId);
             const isAllDone = ch.milestones.lectureDone && ch.milestones.icaiSmDone && ch.milestones.rtpPyqDone && ch.milestones.revised2x;
 
             return (
@@ -331,7 +423,7 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
                     <div className="flex items-center gap-1.5 flex-wrap pt-1">
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Resources:</span>
                       <a
-                        href={`https://www.google.com/search?q=${encodeURIComponent('ICAI BoS CA Inter ' + (ICAI_PAPERS.find(p => p.id === ch.paperId)?.shortName || 'CA Inter') + ' ' + ch.title + ' Study Material PDF')}`}
+                        href={`https://www.google.com/search?q=${encodeURIComponent('ICAI BoS ' + courseTitle + ' ' + (paper?.shortName || courseTitle) + ' ' + ch.title + ' Study Material PDF')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/30 text-emerald-300 transition-colors"
@@ -342,7 +434,7 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
                         <ExternalLink className="w-2.5 h-2.5 text-emerald-400" />
                       </a>
                       <a
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent('CA Inter ' + (ICAI_PAPERS.find(p => p.id === ch.paperId)?.shortName || 'CA Inter') + ' ' + ch.title + ' marathon revision lecture')}`}
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(courseTitle + ' ' + (paper?.shortName || courseTitle) + ' ' + ch.title + ' marathon revision lecture')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 transition-colors"
@@ -353,7 +445,7 @@ export const SyllabusTracker: React.FC<SyllabusTrackerProps> = ({
                         <ExternalLink className="w-2.5 h-2.5 text-red-400" />
                       </a>
                       <a
-                        href={`https://www.google.com/search?q=${encodeURIComponent('Taxmann Cracker CA Inter ' + (ICAI_PAPERS.find(p => p.id === ch.paperId)?.shortName || 'CA Inter') + ' ' + ch.title + ' Scanner')}`}
+                        href={`https://www.google.com/search?q=${encodeURIComponent('Taxmann Scanner ' + courseTitle + ' ' + (paper?.shortName || courseTitle) + ' ' + ch.title + ' Cracker')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/30 text-amber-300 transition-colors"

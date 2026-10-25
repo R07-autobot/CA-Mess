@@ -1,4 +1,4 @@
-import { AppTheme } from '../types/ca-study';
+import { AppTheme, AppFontFamily } from '../types/ca-study';
 
 export interface ThemeConfig {
   id: AppTheme;
@@ -74,4 +74,52 @@ export const THEMES: Record<AppTheme, ThemeConfig> = {
     navClass: 'bg-white/95 border-slate-300 text-slate-800 shadow-sm',
     textClass: 'text-slate-900',
   },
+  beige: {
+    id: 'beige',
+    name: 'Editorial Beige & Pitch Black',
+    tagline: 'Warm unbleached ivory & deep inky pitch-black with prestigious editorial typography',
+    accentHex: '#18181b',
+    previewBg: 'bg-[#F2ECE0] border-[#18181b]',
+    badgeClass: 'bg-[#18181b] text-[#FAF7F2] border-[#18181b]',
+    containerClass: 'bg-[#F8F5EE] text-[#121212] theme-beige',
+    cardClass: 'bg-white border-[#E2DDD0] shadow-sm text-[#18181b]',
+    navClass: 'bg-[#F2ECE0]/95 border-[#E2DDD0] text-[#18181b] shadow-sm',
+    textClass: 'text-[#121212]',
+  },
 };
+
+export interface FontOption {
+  id: AppFontFamily;
+  name: string;
+  styleLabel: string;
+  className: string;
+  sample: string;
+  description: string;
+}
+
+export const FONT_OPTIONS: FontOption[] = [
+  {
+    id: 'playfair',
+    name: 'Playfair Display (Editorial Serif)',
+    styleLabel: 'Prestigious Serif',
+    className: 'font-playfair',
+    sample: 'Chartered Accountants & ICAI New Scheme',
+    description: 'High-contrast luxury serif inspired by classical printing — matches beige & pitch black flawlessly.',
+  },
+  {
+    id: 'fraunces',
+    name: 'Fraunces (Old-Style Bookish)',
+    styleLabel: 'Literary Book Serif',
+    className: 'font-fraunces',
+    sample: 'Advanced Auditing & Professional Ethics',
+    description: 'Warm, elegant bookish serif reminiscent of classical financial journals and statutory casebooks.',
+  },
+  {
+    id: 'jakarta',
+    name: 'Plus Jakarta Sans (Modern Clean)',
+    styleLabel: 'Modern Grotesque',
+    className: 'font-jakarta',
+    sample: 'Daily 5-Hour Protocol & Velocity Balancer',
+    description: 'Sharp, ultra-legible contemporary sans serif designed for data density and nocturnal focus.',
+  },
+];
